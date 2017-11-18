@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+    <Style id="icon-1604-006064-labelson">
+        <IconStyle>
+            <color>ff646000</color>
+            <scale>1</scale>
+            <Icon>
+                <href>http://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+            </Icon>
+        </IconStyle>
+    </Style>
+    <Style id="white">
+                <IconStyle>
+                    <Icon>
+                        <href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+                    </Icon>
+                </IconStyle>
+              </Style>
+    <Style id="exampleBalloonStyle">
+        <BalloonStyle>
+          <!-- a background color for the balloon -->
+          <bgColor>ffffffbb</bgColor>
+          <!-- styling of the balloon text -->
+          <text><![CDATA[
+          <b><font color="#CC0000" size="+3">$[name]</font></b>
+          <br/><br/>
+          <font face="Courier">$[description]</font>
+          <br/><br/>
+          Extra text that will appear in the description balloon
+          <br/><br/>
+          <!-- insert the to/from hyperlinks -->
+          $[geDirections]
+          ]]></text>
+        </BalloonStyle>
+    </Style>
+    <Folder>
+    <Placemark>
+        <name>Tiegerweide</name>
+        <description><![CDATA[Nr.: 88<br>Koordinaten: 47.1062, 35.7436<br>Kolonie: Molotschna Kolonie<br>Ortsseite: D0708.html<br>Gr.-Jahr: 1822<br>Bemerkungen: <br>Link: http://chort.square7.ch/FB/D0708.html<br>Ort, Gut, Forstei: Ort]]></description>
+        <styleUrl>#icon-1604-006064-labelson</styleUrl>
+        <ExtendedData>
+            <Data name="Nr.">
+                <value>88.0</value>
+            </Data>
+            <Data name="Koordinaten">
+                <value>47.1062, 35.7436</value>
+            </Data>
+            <Data name="Kolonie">
+                <value>Molotschna Kolonie</value>
+            </Data>
+            <Data name="Ortsseite">
+                <value>D0708.html</value>
+            </Data>
+            <Data name="Gr.-Jahr">
+                <value>1822</value>
+            </Data>
+            <Data name="Bemerkungen">
+                <value/>
+            </Data>
+            <Data name="Link">
+                <value>http://chort.square7.ch/FB/D0708.html</value>
+            </Data>
+            <Data name="Ort, Gut, Forstei">
+                <value>Ort</value>
+            </Data>
+        </ExtendedData>
+        <Point>
+            <coordinates>
+                 35.7436,47.1062,0
+            </coordinates>
+        </Point>
+    </Placemark>
+    <Placemark>
+        <name>Bijuk-Kaban</name>
+        <description><![CDATA[Nr.: 156<br>Koordinaten: 45.4450, 33.6850<br>Kolonie: Krim <br>Ortsseite: D0059.html<br>Gr.-Jahr: <br>Bemerkungen: <br>Link: http://chort.square7.ch/FB/D0059.html<br>Ort, Gut, Forstei: Ort]]></description>
+        <ExtendedData>
+            <Data name="Nr.">
+                <value>156.0</value>
+            </Data>
+            <Data name="Koordinaten">
+                <value>45.4450, 33.6850</value>
+            </Data>
+            <Data name="Kolonie">
+                <value>Krim </value>
+            </Data>
+            <Data name="Ortsseite">
+                <value>D0059.html</value>
+            </Data>
+            <Data name="Gr.-Jahr">
+                <value/>
+            </Data>
+            <Data name="Bemerkungen">
+                <value/>
+            </Data>
+            <Data name="Link">
+                <value>http://chort.square7.ch/FB/D0059.html</value>
+            </Data>
+            <Data name="Ort, Gut, Forstei">
+                <value>Ort</value>
+            </Data>
+        </ExtendedData>
+        <Point>
+            <coordinates>
+                33.685,45.445,0
+            </coordinates>
+        </Point>
+      </Placemark>
+</kml>
