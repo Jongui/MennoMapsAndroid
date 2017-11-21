@@ -503,7 +503,7 @@
         </Polygon>
       </Placemark>
       <Placemark>
-        <name>Borosenko</name>
+        <name>Borosenko </name>
         <description>Borosenko Kolonie</description>
         <styleUrl>#borosenko-kolonie-style</styleUrl>
         <ExtendedData>

@@ -1,23 +1,16 @@
 package br.com.joaogd53.mennomaps;
 
+import android.arch.persistence.room.Room;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.location.Address;
 import android.location.Geocoder;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.ColorUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.google.android.gms.dynamic.IObjectWrapper;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -25,7 +18,6 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterManager;
@@ -46,7 +38,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
+import br.com.joaogd53.dao.ColonyDAO;
 import br.com.joaogd53.dao.VillageDAO;
+import br.com.joaogd53.model.AppDatabase;
 import br.com.joaogd53.model.Colony;
 import br.com.joaogd53.model.Village;
 
@@ -94,6 +88,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             kmlLayer.addLayerToMap();
             //Retrieve the first container in the KML layer
             KmlContainer container = kmlLayer.getContainers().iterator().next();
+            List<Colony> colonies = new ArrayList<>();
+            List<Village> villages = new ArrayList<>();
+            int idColony = 1;
             for (KmlContainer cont : container.getContainers()){
                 for (KmlPlacemark placemark : cont.getPlacemarks()) {
                     //Log.e("StyleId: ",placemark.getStyleId());
@@ -102,20 +99,38 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         continue;
                     }
                     if (placemark.getGeometry() instanceof KmlPoint) {
-                        Village v = VillageDAO.getInstance().addVillageFromPlacemarker(placemark);
+                        Village v = Village.VillageBuilder.addVillageFromPlacemarker(placemark);
                         LatLng tmp = v.getPosition();
                         lat += tmp.latitude;
                         lon += tmp.longitude;
                         Geocoder geocoder = new Geocoder(this);
                         LatLng l = v.getPosition();
                         mClusterManager.addItem(v);
+                        villages.add(v);
                         totalVillages++;
+                        v.setIdVillage(totalVillages);
                     } else if (placemark.getGeometry() instanceof KmlPolygon) {
-                        Colony.ColonyBuilder.buildFromPlaceMarker(placemark);
+                        Colony colony = Colony.ColonyBuilder.buildFromPlaceMarker(placemark);
+                        colony.setIdColony(idColony);
+                        colonies.add(colony);
+                        idColony++;
                     }
                 }
 
             }
+            Colony[] cols = new Colony[colonies.size()];
+            int i = 0;
+            for(Colony colony : colonies){
+                cols[i] = colony;
+                i++;
+            }
+            Village[] vils = new Village[villages.size()];
+            i = 0;
+            for (Village village : villages){
+                vils[i] = village;
+                i++;
+            }
+            new DataBaseAsyncTask(this, cols, vils).execute();
             if (totalVillages != 0){
                 lat /= totalVillages;
                 lon /= totalVillages;
@@ -226,6 +241,36 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
 
+    }
+
+    private static class DataBaseAsyncTask extends AsyncTask<Void, Void, Void>{
+
+        private Context context;
+        private ColonyDAO mColonyDAO;
+        private VillageDAO mVillageDAO;
+        private AppDatabase mAppDatabase;
+        private Colony[] mColonies;
+        private Village[] mVillages;
+
+        private DataBaseAsyncTask(Context context, Colony[] colonies, Village[] villages){
+            this.context = context;
+            this.mColonies = colonies;
+            this.mVillages = villages;
+            mAppDatabase = Room.databaseBuilder(this.context, AppDatabase.class, "mennomaps-database.db").build();
+            mColonyDAO = mAppDatabase.colonyDAO();
+            mVillageDAO = mAppDatabase.villageDAO();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            Colony[] cols = mColonyDAO.loadAllColonies();
+            Village[] vils = mVillageDAO.loadAllVillages();
+            mColonyDAO.insertColonies(mColonies);
+            mVillageDAO.insertVillages(mVillages);
+            mColonies = mColonyDAO.loadAllColonies();
+            mVillages = mVillageDAO.loadAllVillages();
+            return null;
+        }
     }
 
 }
