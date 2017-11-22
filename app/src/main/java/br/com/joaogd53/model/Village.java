@@ -44,6 +44,9 @@ public class Village implements ClusterItem{
     private float hueColor;
     @ColumnInfo(name = "idColony")
     private int idColony;
+    @Ignore
+    private static int currentId = 0;
+
 
     @Ignore
     private static List<Village> villages;
@@ -153,14 +156,15 @@ public class Village implements ClusterItem{
         return villages.get(index);
     }
 
+    public static int getCurrentId() {
+        currentId++;
+        return currentId;
+    }
+
     public static class VillageBuilder{
         public static Village addVillageFromPlacemarker(KmlPlacemark placemark){
             Village village = new Village();
-            try {
-                int idVil = Integer.getInteger(placemark.getProperty("Nr."));
-            } catch (NullPointerException ex){
-                ex.getStackTrace();
-            }
+            village.idVillage = getCurrentId();
             village.setColonyGroup(placemark.getProperty("Kolonie"));
             village.setName(placemark.getProperty("name"));
             if(placemark.getGeometry().getGeometryType().equals("Point")) {

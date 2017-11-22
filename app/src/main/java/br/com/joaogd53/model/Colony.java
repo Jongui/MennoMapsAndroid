@@ -25,6 +25,10 @@ public class Colony {
     private String country;
     @Ignore
     private List<LatLng> latLngs;
+    @Ignore
+    private static float currentColor;
+    @Ignore
+    private static int currentId = 0;
 
     @Ignore
     private static HashMap<String, Colony> colonyList;
@@ -87,22 +91,43 @@ public class Colony {
         return colonyList;
     }
 
+    public static float getCurrentColor() {
+        currentColor += 31;
+        if (currentColor > 360){
+            currentColor -= 360;
+        }
+        return currentColor;
+    }
+
+    public static int getCurrentId() {
+        currentId++;
+        return currentId;
+    }
+
+    public static List<Colony> getColonies(){
+        List<Colony> ret = new ArrayList<>();
+        for(Colony colony : colonyList.values()){
+            ret.add(colony);
+        }
+        return ret;
+    }
+
     public static class ColonyBuilder {
         public static Colony buildFromPlaceMarker(KmlPlacemark placemark) {
             Colony colony = new Colony();
             colony.name = placemark.getProperty("name");
-            try {
-                colony.color = Float.parseFloat(placemark.getProperty("hue_color"));
-            } catch (NullPointerException ex){
-                colony.color = 210;
-            }
+            colony.color = Colony.getCurrentColor();
             colony.country = placemark.getProperty("country");
             colonyList.put(colony.name, colony);
             return colony;
         }
 
         public static Colony findColonyByName(String name) {
-            return colonyList.get(name);
+            Colony ret = colonyList.get(name);
+            if (ret == null){
+                ret = buildFromColonyName(name);
+            }
+            return ret;
         }
 
         public static void buildFromArray(Colony[] cols) {
@@ -110,6 +135,16 @@ public class Colony {
             for(Colony colony : cols){
                 hashMap.put(colony.name, colony);
             }
+        }
+
+        public static Colony buildFromColonyName(String colonyGroup) {
+            Colony ret = new Colony();
+            ret.idColony = Colony.getCurrentId();
+            ret.color = Colony.getCurrentColor();
+            ret.country = "RU";
+            ret.name = colonyGroup;
+            colonyList.put(colonyGroup, ret);
+            return ret;
         }
     }
 

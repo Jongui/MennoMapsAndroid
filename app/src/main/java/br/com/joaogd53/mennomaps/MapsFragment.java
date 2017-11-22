@@ -1,8 +1,11 @@
 package br.com.joaogd53.mennomaps;
 
 import android.app.Fragment;
+import android.arch.persistence.room.Room;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,13 +26,15 @@ import com.google.maps.android.data.kml.KmlContainer;
 import com.google.maps.android.data.kml.KmlLayer;
 import com.google.maps.android.data.kml.KmlPlacemark;
 import com.google.maps.android.data.kml.KmlPoint;
-import com.google.maps.android.data.kml.KmlPolygon;
 
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.util.List;
 
+import br.com.joaogd53.dao.ColonyDAO;
+import br.com.joaogd53.dao.VillageDAO;
+import br.com.joaogd53.model.AppDatabase;
 import br.com.joaogd53.model.Colony;
 import br.com.joaogd53.model.Village;
 
@@ -94,7 +99,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                     //Log.e("StyleId: ",placemark.getStyleId());
                     if(placemark.getGeometry() == null){
                         Log.e("Vill. w.o. coordinate: ", placemark.getProperty("name"));
-
                         continue;
                     }
 
@@ -106,8 +110,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                         LatLng l = v.getPosition();
                         mClusterManager.addItem(v);
                         totalVillages++;
-                    } else if (placemark.getGeometry() instanceof KmlPolygon) {
-                        Colony.ColonyBuilder.buildFromPlaceMarker(placemark);
                     }
                 }
 
@@ -123,6 +125,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        new DataBaseAsyncTask(this.getActivity()).execute();
     }
 
     private void addMarkersFromSQLite() {
@@ -152,6 +155,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
         mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lat, lon)));
 
+
     }
 
     @Override
@@ -177,5 +181,43 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         super.onPause();
         mMapView.onPause();
     }
+
+    private static class DataBaseAsyncTask extends AsyncTask<Void, Void, Void> {
+
+        private Context mContext;
+        private ColonyDAO mColonyDAO;
+        private VillageDAO mVillageDAO;
+        private AppDatabase mAppDatabase;
+
+        private DataBaseAsyncTask(Context context){
+            this.mContext = context;
+            mAppDatabase = Room.databaseBuilder(this.mContext, AppDatabase.class, "mennomaps-database.db").build();
+            mColonyDAO = mAppDatabase.colonyDAO();
+            mVillageDAO = mAppDatabase.villageDAO();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            List<Village> villages = Village.getVillages();
+            Village[] vils = new Village[villages.size()];
+            int i = 0;
+            for(Village village : villages){
+                vils[i] = village;
+                i++;
+            }
+            i = 0;
+            List<Colony> colonies = Colony.getColonies();
+            Colony[] cols = new Colony[colonies.size()];
+            for(Colony colony : colonies){
+                cols[i] = colony;
+                i++;
+            }
+
+            mColonyDAO.insertColonies(cols);
+            mVillageDAO.insertVillages(vils);
+            return null;
+        }
+    }
+
 }
 
