@@ -91,7 +91,11 @@ public class Colony {
         public static Colony buildFromPlaceMarker(KmlPlacemark placemark) {
             Colony colony = new Colony();
             colony.name = placemark.getProperty("name");
-            colony.color = Float.parseFloat(placemark.getProperty("hue_color"));
+            try {
+                colony.color = Float.parseFloat(placemark.getProperty("hue_color"));
+            } catch (NullPointerException ex){
+                colony.color = 210;
+            }
             colony.country = placemark.getProperty("country");
             colonyList.put(colony.name, colony);
             return colony;
