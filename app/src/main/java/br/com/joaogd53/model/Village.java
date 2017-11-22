@@ -121,6 +121,11 @@ public class Village implements ClusterItem{
         this.longitude = longitude;
     }
 
+    public static List<Village> getVillages() {
+        if (villages == null) villages = new ArrayList<>();
+        return villages;
+    }
+
     @Override
     public LatLng getPosition() {
         return new LatLng(this.latitude, this.longitude);
@@ -178,6 +183,13 @@ public class Village implements ClusterItem{
             villages.add(village);
 
             return village;
+        }
+
+        public static void buildFromArray(Village[] vils) {
+            List<Village> villages = Village.getVillages();
+            for(Village village : vils){
+                villages.add(village);
+            }
         }
     }
 
