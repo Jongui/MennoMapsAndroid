@@ -48,7 +48,7 @@ public class VillageIconRendered extends DefaultClusterRenderer<Village> {
     @Override
     protected void onBeforeClusterRendered(Cluster<Village> cluster,
                                            MarkerOptions markerOptions) {
-        List<String> countryNames = this.findCountiesNames(cluster);
+        List<String> countryNames = this.findCountriesNames(cluster);
         StringBuilder sb = new StringBuilder();
         for (String country : countryNames){
             sb.append(country);
@@ -89,16 +89,15 @@ public class VillageIconRendered extends DefaultClusterRenderer<Village> {
 
     }
 
-    private List<String> findCountiesNames(Cluster<Village> cluster) {
+    private List<String> findCountriesNames(Cluster<Village> cluster) {
         List<String> ret = new ArrayList<>();
         HashMap<String, String> countriesHash = new HashMap<>();
         for (Village v : cluster.getItems()) {
-            Colony colony = Colony.ColonyBuilder.findColonyByName(v.getColonyGroup());
             try {
-                String dummy = countriesHash.get(colony.getCountry());
+                String dummy = countriesHash.get(v.getCountry());
                 if (dummy == null) {
-                    countriesHash.put(colony.getCountry(), colony.getName());
-                    Locale locale = new Locale("", colony.getCountry());
+                    countriesHash.put(v.getCountry(), v.getName());
+                    Locale locale = new Locale("", v.getCountry());
                     ret.add(locale.getDisplayCountry());
                 }
             } catch (NullPointerException ex){

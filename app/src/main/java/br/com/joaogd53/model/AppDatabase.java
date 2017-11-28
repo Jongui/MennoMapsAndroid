@@ -10,7 +10,7 @@ import br.com.joaogd53.dao.VillageDAO;
  * DataBase class for the app
  */
 
-@Database(entities = {Colony.class, Village.class}, version = 1)
+@Database(entities = {Colony.class, Village.class}, version = 2)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract ColonyDAO colonyDAO();
     public abstract VillageDAO villageDAO();

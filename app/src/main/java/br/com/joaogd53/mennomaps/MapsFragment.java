@@ -75,11 +75,16 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
         UiSettings settings = mMap.getUiSettings();
         settings.setZoomControlsEnabled(true);
+        try {
+            Village village = Village.getVillages().get(0);
 
-        if (Village.getVillages().size() == 0){
+            if (Village.getVillages().size() == 0 || village.getCountry() == null) {
+                this.addMarkersFromKml();
+            } else {
+                this.addMarkersFromSQLite();
+            }
+        } catch(Exception ex){
             this.addMarkersFromKml();
-        } else {
-            this.addMarkersFromSQLite();
         }
         mClusterManager.setRenderer(new VillageIconRendered(this.getActivity(), mMap, mClusterManager));
 
@@ -90,7 +95,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         double lat = 0.0, lon = 0.0;
         int totalVillages = 0;
         try {
-            kmlLayer = new KmlLayer(mMap, R.raw.doc, this.getActivity());
+            kmlLayer = new KmlLayer(mMap, R.raw.file, this.getActivity());
             kmlLayer.addLayerToMap();
             //Retrieve the first container in the KML layer
             KmlContainer container = kmlLayer.getContainers().iterator().next();
@@ -184,14 +189,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
     private static class DataBaseAsyncTask extends AsyncTask<Void, Void, Void> {
 
-        private Context mContext;
         private ColonyDAO mColonyDAO;
         private VillageDAO mVillageDAO;
         private AppDatabase mAppDatabase;
 
         private DataBaseAsyncTask(Context context){
-            this.mContext = context;
-            mAppDatabase = Room.databaseBuilder(this.mContext, AppDatabase.class, "mennomaps-database.db").build();
+            mAppDatabase = Room.databaseBuilder(context, AppDatabase.class, "mennomaps-database.db").build();
             mColonyDAO = mAppDatabase.colonyDAO();
             mVillageDAO = mAppDatabase.villageDAO();
         }

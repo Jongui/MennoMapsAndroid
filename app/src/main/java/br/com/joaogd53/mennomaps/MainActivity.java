@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import br.com.joaogd53.dao.ColonyDAO;
+import br.com.joaogd53.dao.Migration1To2;
 import br.com.joaogd53.dao.VillageDAO;
 import br.com.joaogd53.model.AppDatabase;
 import br.com.joaogd53.model.Colony;
@@ -26,19 +27,23 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        new DataBaseAsyncTask(this).execute();
+        AppDatabase appDatabase = Room.databaseBuilder(this, AppDatabase.class, "mennomaps-database.db")
+                    .addMigrations(new Migration1To2(1,2)).build();
+        new DataBaseAsyncTask(this.getFragmentManager(), appDatabase).execute();
     }
 
     private static class DataBaseAsyncTask extends AsyncTask<Void, Void, Void>{
 
-        private AppCompatActivity mActivity;
+        private FragmentManager mFragmentManager;
         private ColonyDAO mColonyDAO;
         private VillageDAO mVillageDAO;
         private AppDatabase mAppDatabase;
 
-        private DataBaseAsyncTask(AppCompatActivity context){
-            this.mActivity = context;
-            mAppDatabase = Room.databaseBuilder(this.mActivity, AppDatabase.class, "mennomaps-database.db").build();
+        private DataBaseAsyncTask(FragmentManager fragmentManager, AppDatabase appDatabase){
+            this.mFragmentManager = fragmentManager;
+            mAppDatabase = appDatabase;
+            //mAppDatabase = Room.databaseBuilder(this.mActivity, AppDatabase.class, "mennomaps-database.db")
+            //        .addMigrations(new Migration1To2(1,2)).build();
             mColonyDAO = mAppDatabase.colonyDAO();
             mVillageDAO = mAppDatabase.villageDAO();
         }
@@ -50,9 +55,8 @@ public class MainActivity extends AppCompatActivity {
             Colony.ColonyBuilder.buildFromArray(cols);
             Village.VillageBuilder.buildFromArray(vils);
             Fragment f = new MapsFragment();
-            FragmentManager fm = mActivity.getFragmentManager();
-            FragmentTransaction ft = fm.beginTransaction();
-            fm.popBackStack("control", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            FragmentTransaction ft = this.mFragmentManager.beginTransaction();
+            this.mFragmentManager.popBackStack("control", FragmentManager.POP_BACK_STACK_INCLUSIVE);
             String tag = "MAIN_STORES";
             ft.replace(R.id.container, f, tag).addToBackStack("control").commit();
             return null;

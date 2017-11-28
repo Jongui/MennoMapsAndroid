@@ -14,6 +14,7 @@ import com.google.maps.android.data.kml.KmlPlacemark;
 import com.google.maps.android.data.kml.KmlPoint;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -32,6 +33,8 @@ public class Village implements ClusterItem{
     private String colonyGroup;
     @ColumnInfo(name = "district")
     private String district;
+    @ColumnInfo(name = "country")
+    private String country;
     @Ignore
     private Uri uri;
     @ColumnInfo(name = "latitude")
@@ -124,6 +127,14 @@ public class Village implements ClusterItem{
         this.longitude = longitude;
     }
 
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
     public static List<Village> getVillages() {
         if (villages == null) villages = new ArrayList<>();
         return villages;
@@ -167,6 +178,7 @@ public class Village implements ClusterItem{
             village.idVillage = getCurrentId();
             village.setColonyGroup(placemark.getProperty("Kolonie"));
             village.setName(placemark.getProperty("name"));
+            village.setCountry(placemark.getProperty("Land"));
             if(placemark.getGeometry().getGeometryType().equals("Point")) {
                 KmlPoint point = (KmlPoint) placemark.getGeometry();
                 LatLng latLng = new LatLng(point.getGeometryObject().latitude, point.getGeometryObject().longitude);
@@ -191,9 +203,7 @@ public class Village implements ClusterItem{
 
         public static void buildFromArray(Village[] vils) {
             List<Village> villages = Village.getVillages();
-            for(Village village : vils){
-                villages.add(village);
-            }
+            villages.addAll(Arrays.asList(vils));
         }
     }
 
