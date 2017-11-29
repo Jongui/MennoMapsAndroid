@@ -4,13 +4,19 @@ import android.app.Fragment;
 import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Html;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -71,6 +77,34 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         // manager.
         mMap.setOnCameraIdleListener(mClusterManager);
         mMap.setOnMarkerClickListener(mClusterManager);
+        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+            @Override
+            public View getInfoWindow(Marker marker) {
+                return null;
+            }
+
+            @Override
+            public View getInfoContents(Marker marker) {
+                Context context = MapsFragment.this.getActivity();
+                LinearLayout info = new LinearLayout(MapsFragment.this.getActivity());
+                info.setOrientation(LinearLayout.VERTICAL);
+
+                TextView title = new TextView(context);
+                title.setTextColor(Color.BLACK);
+                title.setGravity(Gravity.CENTER);
+                title.setTypeface(null, Typeface.BOLD);
+                title.setText(marker.getTitle());
+
+                TextView snippet = new TextView(context);
+                String snippetString = marker.getSnippet();
+                snippet.setText(Html.fromHtml(snippetString));
+
+                info.addView(title);
+                info.addView(snippet);
+
+                return info;
+            }
+        });
         mClusterManager.setAnimation(true);
 
         UiSettings settings = mMap.getUiSettings();
@@ -149,7 +183,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             Marker marker = mMap.addMarker(new MarkerOptions()
                     .position(new LatLng(village.getLatitude(), village.getLongitude()))
                     .icon(BitmapDescriptorFactory.fromBitmap(bitmap)));
-
         }
 
         int size = villages.size();

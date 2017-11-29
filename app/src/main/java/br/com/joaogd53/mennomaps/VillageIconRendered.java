@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import br.com.joaogd53.model.Colony;
 import br.com.joaogd53.model.Village;
 
 /**
@@ -39,10 +38,10 @@ public class VillageIconRendered extends DefaultClusterRenderer<Village> {
 
     @Override
     protected void onBeforeClusterItemRendered(Village item, MarkerOptions markerOptions) {
+        //super.onBeforeClusterItemRendered(item, markerOptions);
         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(item.getHueColor()));
-        markerOptions.snippet(item.getSnippet());
+//        markerOptions.snippet(item.getSnippet());
         markerOptions.title(item.getTitle());
-        super.onBeforeClusterItemRendered(item, markerOptions);
     }
 
     @Override

@@ -6,6 +6,7 @@ import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 import android.net.Uri;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -16,6 +17,7 @@ import com.google.maps.android.data.kml.KmlPoint;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Model class for Villages
@@ -152,7 +154,14 @@ public class Village implements ClusterItem{
 
     @Override
     public String getSnippet() {
-        return this.description;
+        String countryName = new Locale("", this.country).getDisplayCountry();
+        String ret =  "<b>Nr.:</b>" + idVillage +
+                "<br><b>Kolonie</b>: " + colonyGroup +
+                "<br><b>Country</b>: " + countryName +
+                "<br><b>Latitude</b>: " + latitude +
+                "<br><b>Longitude</b>: " + longitude;
+        Log.d(this.name, ret);
+        return ret;
     }
 
     public int getIdColony() {
