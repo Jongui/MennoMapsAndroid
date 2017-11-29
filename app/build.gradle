@@ -9,6 +9,11 @@ android {
         versionCode 6
         versionName "0.0.6"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
+            }
+        }
     }
     buildTypes {
         release {
@@ -25,9 +30,9 @@ dependencies {
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     implementation 'com.google.android.gms:play-services-maps:11.6.0'
     implementation "android.arch.persistence.room:runtime:1.0.0"
-    compile 'com.google.maps.android:android-maps-utils:0.5'
-    compile 'com.android.support:mediarouter-v7:27.0.1'
-    compile 'com.android.support:support-v4:27.0.1'
+    implementation 'com.google.maps.android:android-maps-utils:0.5'
+    implementation 'com.android.support:mediarouter-v7:27.0.1'
+    implementation 'com.android.support:support-v4:27.0.1'
     annotationProcessor "android.arch.persistence.room:compiler:1.0.0"
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'

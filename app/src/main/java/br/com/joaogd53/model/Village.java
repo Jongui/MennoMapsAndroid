@@ -4,6 +4,7 @@ import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 import android.net.Uri;
 import android.util.Log;
@@ -25,7 +26,8 @@ import java.util.Locale;
 
 @Entity(foreignKeys = @ForeignKey(entity = Colony.class,
         parentColumns = "idColony",
-        childColumns = "idColony"))
+        childColumns = "idColony"),
+        indices = {@Index("idColony")})
 public class Village implements ClusterItem{
     @PrimaryKey
     private int idVillage;
@@ -51,7 +53,6 @@ public class Village implements ClusterItem{
     private int idColony;
     @Ignore
     private static int currentId = 0;
-
 
     @Ignore
     private static List<Village> villages;
