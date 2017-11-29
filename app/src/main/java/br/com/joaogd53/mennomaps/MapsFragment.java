@@ -109,6 +109,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
         UiSettings settings = mMap.getUiSettings();
         settings.setZoomControlsEnabled(true);
+//        this.addMarkersFromKml();
         try {
             Village village = Village.getVillages().get(0);
 
