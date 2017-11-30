@@ -155,7 +155,13 @@ public class Village implements ClusterItem{
 
     @Override
     public String getSnippet() {
-        String countryName = new Locale("", this.country).getDisplayCountry();
+        String countryName;
+        try{
+            countryName = new Locale("", this.country).getDisplayCountry();
+        } catch (NullPointerException ex){
+            countryName = new Locale("", "RU").getDisplayName();
+        }
+
         String ret =  "<b>Nr.:</b>" + idVillage +
                 "<br><b>Kolonie</b>: " + colonyGroup +
                 "<br><b>Country</b>: " + countryName +
