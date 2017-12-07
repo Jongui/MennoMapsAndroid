@@ -51,6 +51,8 @@ public class Village implements ClusterItem{
     private float hueColor;
     @ColumnInfo(name = "idColony")
     private int idColony;
+    @ColumnInfo(name = "source")
+    private String source;
     @Ignore
     private static int currentId = 0;
 
@@ -138,6 +140,14 @@ public class Village implements ClusterItem{
         this.country = country;
     }
 
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
     public static List<Village> getVillages() {
         if (villages == null) villages = new ArrayList<>();
         return villages;
@@ -166,7 +176,8 @@ public class Village implements ClusterItem{
                 "<br><b>Kolonie</b>: " + colonyGroup +
                 "<br><b>Country</b>: " + countryName +
                 "<br><b>Latitude</b>: " + latitude +
-                "<br><b>Longitude</b>: " + longitude;
+                "<br><b>Longitude</b>: " + longitude +
+                "<br><b>Source</b>: " + source;
         Log.d(this.name, ret);
         return ret;
     }
@@ -188,6 +199,12 @@ public class Village implements ClusterItem{
         return currentId;
     }
 
+
+    private static List<Village> initVillages() {
+        villages = new ArrayList<>();
+        return villages;
+    }
+
     public static class VillageBuilder{
         public static Village addVillageFromPlacemarker(KmlPlacemark placemark){
             Village village = new Village();
@@ -195,6 +212,7 @@ public class Village implements ClusterItem{
             village.setColonyGroup(placemark.getProperty("Kolonie"));
             village.setName(placemark.getProperty("name"));
             village.setCountry(placemark.getProperty("Land"));
+            village.setSource(placemark.getProperty("Source"));
             if(placemark.getGeometry().getGeometryType().equals("Point")) {
                 KmlPoint point = (KmlPoint) placemark.getGeometry();
                 LatLng latLng = new LatLng(point.getGeometryObject().latitude, point.getGeometryObject().longitude);
@@ -218,9 +236,10 @@ public class Village implements ClusterItem{
         }
 
         public static void buildFromArray(Village[] vils) {
-            List<Village> villages = Village.getVillages();
+            List<Village> villages = Village.initVillages();
             villages.addAll(Arrays.asList(vils));
         }
     }
+
 
 }

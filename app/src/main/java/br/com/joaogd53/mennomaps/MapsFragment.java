@@ -98,7 +98,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
                 TextView snippet = new TextView(context);
                 String snippetString = marker.getSnippet();
-                snippet.setText(Html.fromHtml(snippetString));
+                try {
+                    snippet.setText(Html.fromHtml(snippetString));
+                } catch (NullPointerException ex){
+                    snippet.setText("");
+                }
 
                 info.addView(title);
                 info.addView(snippet);

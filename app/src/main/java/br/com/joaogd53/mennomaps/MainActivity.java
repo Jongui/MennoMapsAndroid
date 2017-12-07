@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import br.com.joaogd53.dao.ColonyDAO;
 import br.com.joaogd53.dao.Migration1To2;
 import br.com.joaogd53.dao.Migration2To3;
+import br.com.joaogd53.dao.Migration3To4;
 import br.com.joaogd53.dao.VillageDAO;
 import br.com.joaogd53.model.AppDatabase;
 import br.com.joaogd53.model.Colony;
@@ -29,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         AppDatabase appDatabase = Room.databaseBuilder(this, AppDatabase.class, "mennomaps-database.db")
-                    .addMigrations(new Migration1To2(1,2), new Migration2To3(2,3)).build();
+                    .addMigrations(new Migration1To2(1,2), new Migration2To3(2,3), new Migration3To4(3,4)).build();
         new DataBaseAsyncTask(this.getFragmentManager(), appDatabase).execute();
     }
 
