@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/MennoMaps.iml" filepath="$PROJECT_DIR$/MennoMaps.iml" />
+      <module fileurl="file://$PROJECT_DIR$/MennoMapsAndroid.iml" filepath="$PROJECT_DIR$/MennoMapsAndroid.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

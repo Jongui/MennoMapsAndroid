@@ -7,6 +7,7 @@ import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.database.DataSnapshot;
 import com.google.maps.android.data.kml.KmlPlacemark;
 
 import java.util.ArrayList;
@@ -106,9 +107,7 @@ public class Colony {
 
     public static List<Colony> getColonies(){
         List<Colony> ret = new ArrayList<>();
-        for(Colony colony : colonyList.values()){
-            ret.add(colony);
-        }
+        ret.addAll(colonyList.values());
         return ret;
     }
 
@@ -144,6 +143,14 @@ public class Colony {
             ret.country = "RU";
             ret.name = colonyGroup;
             colonyList.put(colonyGroup, ret);
+            return ret;
+        }
+
+        public static Colony buildFromSnapshot(DataSnapshot colonySnapshot) {
+            Colony ret = new Colony();
+            ret.name = colonySnapshot.getKey();
+            //String col = colonySnapshot.child("color").getValue().toString();
+            colonyList.put(ret.name, ret);
             return ret;
         }
     }

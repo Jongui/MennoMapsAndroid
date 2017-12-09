@@ -40,10 +40,13 @@ import java.io.IOException;
 import java.util.List;
 
 import br.com.joaogd53.dao.ColonyDAO;
+import br.com.joaogd53.dao.ColonyFirebaseDAO;
+import br.com.joaogd53.dao.FirebaseDAO;
 import br.com.joaogd53.dao.VillageDAO;
 import br.com.joaogd53.model.AppDatabase;
 import br.com.joaogd53.model.Colony;
 import br.com.joaogd53.model.Village;
+import br.com.joaogd53.utils.NetworkUtils;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -100,7 +103,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 String snippetString = marker.getSnippet();
                 try {
                     snippet.setText(Html.fromHtml(snippetString));
-                } catch (NullPointerException ex){
+                } catch (NullPointerException ex) {
                     snippet.setText("");
                 }
 
@@ -114,13 +117,21 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
         UiSettings settings = mMap.getUiSettings();
         settings.setZoomControlsEnabled(true);
-        this.addMarkers();
+        if (NetworkUtils.networkIsConnected(this.getActivity())) {
+            this.addOnlineMarkser();
+        } else {
+            this.addOfflineMarkers();
+        }
 //        this.addMarkersFromKml();
         mClusterManager.setRenderer(new VillageIconRendered(this.getActivity(), mMap, mClusterManager));
 
     }
 
-    private void addMarkers() {
+    private void addOnlineMarkser() {
+        ColonyFirebaseDAO.getInstance().addFirebaseDAO(new ColonyEventListener());
+    }
+
+    private void addOfflineMarkers() {
 
         final String PREFS_NAME = "MennoMapsPrefsFile";
         final String PREF_VERSION_CODE_KEY = "version_code";
@@ -135,7 +146,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
         // Check for first run or upgrade
         if (currentVersionCode == savedVersionCode) {
-            this.addMarkersFromSQLite();
+            this.addMarkersFromMemory();
             return;
         } else if (savedVersionCode == DOESNT_EXIST) {
             this.addMarkersFromKml();
@@ -190,7 +201,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         new DataBaseAsyncTask(this.getActivity()).execute();
     }
 
-    private void addMarkersFromSQLite() {
+    private void addMarkersFromMemory() {
         Drawable drawable = getResources().getDrawable(R.drawable.background_circle_transparent);
         Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
 
@@ -240,6 +251,16 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         super.onPause();
         mMapView.onPause();
     }
+
+    private class ColonyEventListener implements FirebaseDAO {
+
+        @Override
+        public void atLoadFinished() {
+
+        }
+    }
+
+
 
     private static class DataBaseAsyncTask extends AsyncTask<Void, Void, Void> {
 
