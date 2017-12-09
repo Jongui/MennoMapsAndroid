@@ -8,6 +8,8 @@ import android.arch.persistence.room.PrimaryKey;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.maps.android.data.kml.KmlPlacemark;
 
 import java.util.ArrayList;
@@ -30,6 +32,8 @@ public class Colony {
     private static float currentColor;
     @Ignore
     private static int currentId = 0;
+    @Ignore
+    private DatabaseReference databaseReference;
 
     @Ignore
     private static HashMap<String, Colony> colonyList;
@@ -118,6 +122,8 @@ public class Colony {
             colony.color = Colony.getCurrentColor();
             colony.country = placemark.getProperty("country");
             colonyList.put(colony.name, colony);
+            String ref = "dev/Colony/" + colony.name;
+            colony.databaseReference = FirebaseDatabase.getInstance().getReference(ref);
             return colony;
         }
 
@@ -142,6 +148,8 @@ public class Colony {
             ret.color = Colony.getCurrentColor();
             ret.country = "RU";
             ret.name = colonyGroup;
+            String ref = "dev/Colony/" + ret.name;
+            ret.databaseReference = FirebaseDatabase.getInstance().getReference(ref);
             colonyList.put(colonyGroup, ret);
             return ret;
         }
@@ -149,7 +157,10 @@ public class Colony {
         public static Colony buildFromSnapshot(DataSnapshot colonySnapshot) {
             Colony ret = new Colony();
             ret.name = colonySnapshot.getKey();
-            //String col = colonySnapshot.child("color").getValue().toString();
+            String ref = "dev/Colony/" + ret.name;
+            ret.databaseReference = FirebaseDatabase.getInstance().getReference(ref);
+            String col = colonySnapshot.child("color").getValue().toString();
+            ret.color = Float.valueOf(col);
             colonyList.put(ret.name, ret);
             return ret;
         }
