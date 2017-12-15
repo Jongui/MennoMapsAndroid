@@ -155,12 +155,21 @@ public class Colony {
         }
 
         public static Colony buildFromSnapshot(DataSnapshot colonySnapshot) {
-            Colony ret = new Colony();
+            Colony ret;
+            ret = colonyList.get(colonySnapshot.getKey());
+            if(ret == null) ret = new Colony();
             ret.name = colonySnapshot.getKey();
             String ref = "dev/Colony/" + ret.name;
             ret.databaseReference = FirebaseDatabase.getInstance().getReference(ref);
             String col = colonySnapshot.child("color").getValue().toString();
             ret.color = Float.valueOf(col);
+            try {
+                ret.country = colonySnapshot.child("country").getValue().toString();
+            } catch (NullPointerException ex){
+                ret.country = "NA";
+                ret.databaseReference.child("country").setValue(ret.country);
+            }
+            ret.idColony = Integer.valueOf(colonySnapshot.child("idColony").getValue().toString());
             colonyList.put(ret.name, ret);
             return ret;
         }
