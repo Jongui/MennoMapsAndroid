@@ -15,22 +15,21 @@ public class ColonyFirebaseDAO extends AbstractFirebaseDAO implements ValueEvent
 
     private static ColonyFirebaseDAO instance;
 
-    private ColonyFirebaseDAO(){
+    private ColonyFirebaseDAO() {
         this.databaseReference = FirebaseDatabase.getInstance().getReference("dev/Colony");
         this.databaseReference.addValueEventListener(this);
     }
 
-    public static ColonyFirebaseDAO getInstance(){
-        if(instance == null) instance = new ColonyFirebaseDAO();
+    public static ColonyFirebaseDAO getInstance() {
+        if (instance == null) instance = new ColonyFirebaseDAO();
         return instance;
     }
 
     @Override
     public void onDataChange(DataSnapshot dataSnapshot) {
-        for (DataSnapshot colonySnapshot: dataSnapshot.getChildren()) {
+        for (DataSnapshot colonySnapshot : dataSnapshot.getChildren()) {
             Colony colony = Colony.ColonyBuilder.buildFromSnapshot(colonySnapshot);
         }
-
     }
 
     @Override

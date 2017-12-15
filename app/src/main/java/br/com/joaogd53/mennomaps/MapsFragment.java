@@ -43,6 +43,7 @@ import br.com.joaogd53.dao.ColonyDAO;
 import br.com.joaogd53.dao.ColonyFirebaseDAO;
 import br.com.joaogd53.dao.FirebaseDAO;
 import br.com.joaogd53.dao.VillageDAO;
+import br.com.joaogd53.dao.VillageFirebaseDAO;
 import br.com.joaogd53.model.AppDatabase;
 import br.com.joaogd53.model.Colony;
 import br.com.joaogd53.model.Village;
@@ -129,6 +130,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
     private void addOnlineMarkser() {
         ColonyFirebaseDAO.getInstance().addFirebaseDAO(new ColonyEventListener());
+        VillageFirebaseDAO.getInstance().addFirebaseDAO(new VillageEventListener());
     }
 
     private void addOfflineMarkers() {
@@ -260,7 +262,13 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    private class VillageEventListener implements  FirebaseDAO{
 
+        @Override
+        public void atLoadFinished() {
+
+        }
+    }
 
     private static class DataBaseAsyncTask extends AsyncTask<Void, Void, Void> {
 

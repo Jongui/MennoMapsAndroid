@@ -8,15 +8,18 @@ import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 import android.net.Uri;
 import android.util.Log;
+import android.util.SparseArray;
 
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.data.kml.KmlPlacemark;
 import com.google.maps.android.data.kml.KmlPoint;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -28,7 +31,7 @@ import java.util.Locale;
         parentColumns = "idColony",
         childColumns = "idColony"),
         indices = {@Index("idColony")})
-public class Village implements ClusterItem{
+public class Village implements ClusterItem {
     @PrimaryKey
     private int idVillage;
     @ColumnInfo(name = "name")
@@ -54,10 +57,17 @@ public class Village implements ClusterItem{
     @ColumnInfo(name = "source")
     private String source;
     @Ignore
+    private int firebaseKey;
+    @Ignore
+    private DatabaseReference databaseReference;
+
+    @Ignore
+    private final static String REFERENCE_NAME = "dev/Village/";
+
     private static int currentId = 0;
 
     @Ignore
-    private static List<Village> villages;
+    private static SparseArray<Village> villages;
 
 
     public int getIdVillage() {
@@ -148,9 +158,21 @@ public class Village implements ClusterItem{
         this.source = source;
     }
 
+    public int getFirebaseKey() {
+        return firebaseKey;
+    }
+
+    public void setFirebaseKey(int firebaseKey) {
+        this.firebaseKey = firebaseKey;
+    }
+
     public static List<Village> getVillages() {
-        if (villages == null) villages = new ArrayList<>();
-        return villages;
+        if (villages == null) villages = new SparseArray<>();
+        List<Village> ret = new ArrayList<>(villages.size());
+        for(int i = 0; i < villages.size(); i++){
+            ret.add(villages.valueAt(i));
+        }
+        return ret;
     }
 
     @Override
@@ -166,13 +188,13 @@ public class Village implements ClusterItem{
     @Override
     public String getSnippet() {
         String countryName;
-        try{
+        try {
             countryName = new Locale("", this.country).getDisplayCountry();
-        } catch (NullPointerException ex){
+        } catch (NullPointerException ex) {
             countryName = new Locale("", "RU").getDisplayName();
         }
 
-        String ret =  "<b>Nr.:</b>" + idVillage +
+        String ret = "<b>Nr.:</b>" + idVillage +
                 "<br><b>Kolonie</b>: " + colonyGroup +
                 "<br><b>Country</b>: " + countryName +
                 "<br><b>Latitude</b>: " + latitude +
@@ -190,7 +212,7 @@ public class Village implements ClusterItem{
         this.idColony = idColony;
     }
 
-    public static Village getVillageAtIndex(int index){
+    public static Village getVillageAtIndex(int index) {
         return villages.get(index);
     }
 
@@ -200,20 +222,20 @@ public class Village implements ClusterItem{
     }
 
 
-    private static List<Village> initVillages() {
-        villages = new ArrayList<>();
+    private static SparseArray<Village> initVillages() {
+        villages = new SparseArray<>();
         return villages;
     }
 
-    public static class VillageBuilder{
-        public static Village addVillageFromPlacemarker(KmlPlacemark placemark){
+    public static class VillageBuilder {
+        public static Village addVillageFromPlacemarker(KmlPlacemark placemark) {
             Village village = new Village();
             village.idVillage = getCurrentId();
             village.setColonyGroup(placemark.getProperty("Kolonie"));
             village.setName(placemark.getProperty("name"));
             village.setCountry(placemark.getProperty("Land"));
             village.setSource(placemark.getProperty("Source"));
-            if(placemark.getGeometry().getGeometryType().equals("Point")) {
+            if (placemark.getGeometry().getGeometryType().equals("Point")) {
                 KmlPoint point = (KmlPoint) placemark.getGeometry();
                 LatLng latLng = new LatLng(point.getGeometryObject().latitude, point.getGeometryObject().longitude);
                 village.setLatitude(latLng.latitude);
@@ -222,22 +244,52 @@ public class Village implements ClusterItem{
             village.setDescription(placemark.getProperty("description"));
 //        Uri uri = Uri.parse(placemark.getProperty("Link"));
             Colony colony = Colony.ColonyBuilder.findColonyByName(village.getColonyGroup());
-            if (colony != null){
+            if (colony != null) {
                 village.setHueColor(colony.getColor());
                 village.idColony = colony.getIdColony();
             } else {
                 village.setHueColor(BitmapDescriptorFactory.HUE_RED);
             }
 //        village.setUri(uri);
-            if (villages == null) villages = new ArrayList<>();
-            villages.add(village);
-
+            if (villages == null) villages = new SparseArray<>();
+            villages.put(village.idVillage, village);
             return village;
         }
 
         public static void buildFromArray(Village[] vils) {
-            List<Village> villages = Village.initVillages();
-            villages.addAll(Arrays.asList(vils));
+            SparseArray<Village> villages = Village.initVillages();
+            for (Village v : vils) {
+                villages.put(v.idVillage, v);
+            }
+        }
+
+        public static Village buildFromSnapshot(DataSnapshot villageSnapshot) {
+            Village ret;
+            Integer i = Integer.valueOf(villageSnapshot.child("Nr").getValue().toString());
+            ret = villages.get(Integer.valueOf(villageSnapshot.child("Nr").getValue().toString()));
+            if (ret == null) {
+                ret = new Village();
+                ret.idVillage = Integer.valueOf(villageSnapshot.child("Nr").getValue().toString());
+                villages.put(ret.idVillage, ret);
+            }
+            ret.firebaseKey = Integer.valueOf(villageSnapshot.getKey());
+            ret.name = villageSnapshot.child("Name").getValue().toString();
+            ret.colonyGroup = villageSnapshot.child("Kolonie").getValue().toString();
+            ret.country = villageSnapshot.child("Land").getValue().toString();
+            Colony colony = Colony.ColonyBuilder.findColonyByName(ret.colonyGroup);
+            if (colony != null) {
+                ret.setHueColor(colony.getColor());
+                ret.idColony = colony.getIdColony();
+            } else {
+                ret.setHueColor(BitmapDescriptorFactory.HUE_RED);
+            }
+            ret.latitude = Double.valueOf(villageSnapshot.child("Latitude").getValue().toString());
+            ret.longitude = Double.valueOf(villageSnapshot.child("Longitude").getValue().toString());
+            ret.source = villageSnapshot.child("Source").getValue().toString();
+            String ref = REFERENCE_NAME + ret.firebaseKey;
+            ret.databaseReference = FirebaseDatabase.getInstance().getReference(ref);
+            ret.description = ret.getSnippet();
+            return ret;
         }
     }
 

@@ -37,7 +37,8 @@ public class Colony {
 
     @Ignore
     private static HashMap<String, Colony> colonyList;
-
+    @Ignore
+    private final static String REFERENCE_NAME = "dev/Colony/";
 
     public Colony() {
         if (colonyList == null) {
@@ -122,7 +123,7 @@ public class Colony {
             colony.color = Colony.getCurrentColor();
             colony.country = placemark.getProperty("country");
             colonyList.put(colony.name, colony);
-            String ref = "dev/Colony/" + colony.name;
+            String ref = REFERENCE_NAME + colony.name;
             colony.databaseReference = FirebaseDatabase.getInstance().getReference(ref);
             return colony;
         }
@@ -159,7 +160,7 @@ public class Colony {
             ret = colonyList.get(colonySnapshot.getKey());
             if(ret == null) ret = new Colony();
             ret.name = colonySnapshot.getKey();
-            String ref = "dev/Colony/" + ret.name;
+            String ref = REFERENCE_NAME + ret.name;
             ret.databaseReference = FirebaseDatabase.getInstance().getReference(ref);
             String col = colonySnapshot.child("color").getValue().toString();
             ret.color = Float.valueOf(col);
