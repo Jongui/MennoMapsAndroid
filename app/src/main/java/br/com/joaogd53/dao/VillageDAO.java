@@ -4,6 +4,8 @@ import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
+import android.arch.persistence.room.Update;
+
 import br.com.joaogd53.model.Village;
 
 /**
@@ -16,7 +18,8 @@ public interface VillageDAO {
     void insertVillages(Village...villages);
     @Query("SELECT * FROM Village")
     Village[] loadAllVillages();
-
+    @Update
+    void updateVillages(Village...villages);
     /*private static VillageDAO instance;
     private List<Village> villages;
 

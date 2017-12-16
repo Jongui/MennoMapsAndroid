@@ -56,7 +56,7 @@ public class Village implements ClusterItem {
     private int idColony;
     @ColumnInfo(name = "source")
     private String source;
-    @Ignore
+    @ColumnInfo(name = "firebaseKey")
     private int firebaseKey;
     @Ignore
     private DatabaseReference databaseReference;

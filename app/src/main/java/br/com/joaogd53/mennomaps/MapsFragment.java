@@ -119,7 +119,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         UiSettings settings = mMap.getUiSettings();
         settings.setZoomControlsEnabled(true);
         if (NetworkUtils.networkIsConnected(this.getActivity())) {
-            this.addOnlineMarkser();
+            this.addOnlineMarkers();
         } else {
             this.addOfflineMarkers();
         }
@@ -128,9 +128,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
     }
 
-    private void addOnlineMarkser() {
+    private void addOnlineMarkers() {
+        VillageFirebaseDAO villageFirebaseDAO = VillageFirebaseDAO.getInstance();
         ColonyFirebaseDAO.getInstance().addFirebaseDAO(new ColonyEventListener());
-        VillageFirebaseDAO.getInstance().addFirebaseDAO(new VillageEventListener());
+        villageFirebaseDAO.setContext(this.getActivity());
+        villageFirebaseDAO.addFirebaseDAO(new VillageEventListener());
     }
 
     private void addOfflineMarkers() {
