@@ -266,6 +266,7 @@ public class Village implements ClusterItem {
         public static Village buildFromSnapshot(DataSnapshot villageSnapshot) {
             Village ret;
             Integer i = Integer.valueOf(villageSnapshot.child("Nr").getValue().toString());
+            if (villages == null) villages = new SparseArray<>();
             ret = villages.get(Integer.valueOf(villageSnapshot.child("Nr").getValue().toString()));
             if (ret == null) {
                 ret = new Village();

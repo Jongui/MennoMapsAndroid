@@ -22,7 +22,7 @@ public class Migration4To5 extends Migration {
     @Override
     public void migrate(@NonNull SupportSQLiteDatabase database) {
         database.execSQL("ALTER TABLE Village "
-                + " ADD COLUMN firebaseKey NUMBER");
+                + " ADD COLUMN firebaseKey INTEGER");
         VillageFirebaseDAO.getInstance().setUpdateSQLite(true);
     }
 }
