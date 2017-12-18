@@ -63,6 +63,7 @@ public class VillageFirebaseDAO extends AbstractFirebaseDAO implements ValueEven
             villageDAO.updateVillages(villagesUpdate);
             updateSQLite = false;
         }
+        this.triggerFirebaseDAO();
     }
 
     @Override
