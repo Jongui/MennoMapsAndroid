@@ -20,8 +20,8 @@ import br.com.joaogd53.model.Village;
 
 public class VillageFirebaseDAO extends AbstractFirebaseDAO implements ValueEventListener {
 
-    private boolean updateSQLite;
-    private Context context;
+    private static boolean updateSQLite = false;
+    private AppDatabase appDatabase;
 
     private static VillageFirebaseDAO instance;
 
@@ -32,17 +32,19 @@ public class VillageFirebaseDAO extends AbstractFirebaseDAO implements ValueEven
     }
 
     private VillageFirebaseDAO() {
+
+    }
+
+    public static void setUpdateSQLite(boolean newValue) {
+        updateSQLite = newValue;
+    }
+
+    public void init(Context context){
         this.databaseReference = FirebaseDatabase.getInstance().getReference("dev/Village");
         this.databaseReference.addValueEventListener(this);
-        updateSQLite = false;
-    }
-
-    public void setUpdateSQLite(boolean updateSQLite) {
-        this.updateSQLite = updateSQLite;
-    }
-
-    public void setContext(Context context) {
-        this.context = context;
+        appDatabase = Room.databaseBuilder(context, AppDatabase.class, "mennomaps-database.db")
+                .addMigrations(new Migration1To2(1,2), new Migration2To3(2,3), new Migration3To4(3,4),
+                        new Migration4To5(4,5)).build();
     }
 
     @Override
@@ -52,12 +54,11 @@ public class VillageFirebaseDAO extends AbstractFirebaseDAO implements ValueEven
             Village village = Village.VillageBuilder.buildFromSnapshot(colonySnapshot);
             villages.add(village);
         }
-        if (updateSQLite && context != null) {
+        if (updateSQLite && appDatabase != null) {
             Village[] villagesUpdate = new Village[villages.size()];
             for(int i = 0; i < villages.size(); i++){
                 villagesUpdate[i] = villages.get(i);
             }
-            AppDatabase appDatabase = Room.databaseBuilder(this.context, AppDatabase.class, "mennomaps-database.db").build();
             VillageDAO villageDAO = appDatabase.villageDAO();
             villageDAO.updateVillages(villagesUpdate);
             updateSQLite = false;
@@ -68,4 +69,5 @@ public class VillageFirebaseDAO extends AbstractFirebaseDAO implements ValueEven
     public void onCancelled(DatabaseError databaseError) {
 
     }
+
 }

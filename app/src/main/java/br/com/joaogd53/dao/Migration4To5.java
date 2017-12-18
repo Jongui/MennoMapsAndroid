@@ -21,8 +21,8 @@ public class Migration4To5 extends Migration {
 
     @Override
     public void migrate(@NonNull SupportSQLiteDatabase database) {
-        database.execSQL("ALTER TABLE Village "
-                + " ADD COLUMN firebaseKey INTEGER");
-        VillageFirebaseDAO.getInstance().setUpdateSQLite(true);
+        database.execSQL("ALTER TABLE 'Village' "
+                + " ADD COLUMN 'firebaseKey' INTEGER NOT NULL DEFAULT '0'");
+        VillageFirebaseDAO.setUpdateSQLite(true);
     }
 }

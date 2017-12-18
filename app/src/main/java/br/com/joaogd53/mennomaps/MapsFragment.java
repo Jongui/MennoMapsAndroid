@@ -131,7 +131,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private void addOnlineMarkers() {
         VillageFirebaseDAO villageFirebaseDAO = VillageFirebaseDAO.getInstance();
         ColonyFirebaseDAO.getInstance().addFirebaseDAO(new ColonyEventListener());
-        villageFirebaseDAO.setContext(this.getActivity());
+        villageFirebaseDAO.init(this.getActivity());
         villageFirebaseDAO.addFirebaseDAO(new VillageEventListener());
     }
 

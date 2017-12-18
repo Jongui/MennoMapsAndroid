@@ -1,0 +1,158 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 5,
+    "identityHash": "89697373c7e2867ddc8d4116f56f1818",
+    "entities": [
+      {
+        "tableName": "Colony",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`idColony` INTEGER NOT NULL, `name` TEXT, `color` REAL NOT NULL, `country` TEXT, PRIMARY KEY(`idColony`))",
+        "fields": [
+          {
+            "fieldPath": "idColony",
+            "columnName": "idColony",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "color",
+            "columnName": "color",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "country",
+            "columnName": "country",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "idColony"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Village",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`idVillage` INTEGER NOT NULL, `name` TEXT, `colonyGroup` TEXT, `district` TEXT, `country` TEXT, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `description` TEXT, `hueColor` REAL NOT NULL, `idColony` INTEGER NOT NULL, `source` TEXT, `firebaseKey` INTEGER NOT NULL, PRIMARY KEY(`idVillage`), FOREIGN KEY(`idColony`) REFERENCES `Colony`(`idColony`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "idVillage",
+            "columnName": "idVillage",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "colonyGroup",
+            "columnName": "colonyGroup",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "district",
+            "columnName": "district",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "country",
+            "columnName": "country",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "latitude",
+            "columnName": "latitude",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "longitude",
+            "columnName": "longitude",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "hueColor",
+            "columnName": "hueColor",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idColony",
+            "columnName": "idColony",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "source",
+            "columnName": "source",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "firebaseKey",
+            "columnName": "firebaseKey",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "idVillage"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_Village_idColony",
+            "unique": false,
+            "columnNames": [
+              "idColony"
+            ],
+            "createSql": "CREATE  INDEX `index_Village_idColony` ON `${TABLE_NAME}` (`idColony`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Colony",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "idColony"
+            ],
+            "referencedColumns": [
+              "idColony"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"89697373c7e2867ddc8d4116f56f1818\")"
+    ]
+  }
+}

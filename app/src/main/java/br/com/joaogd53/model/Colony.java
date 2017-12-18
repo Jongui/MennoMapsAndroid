@@ -93,13 +93,13 @@ public class Colony {
     }
 
     public static HashMap<String, Colony> getColonyList() {
-        if(colonyList == null) colonyList = new HashMap<>();
+        if (colonyList == null) colonyList = new HashMap<>();
         return colonyList;
     }
 
     public static float getCurrentColor() {
         currentColor += 31;
-        if (currentColor > 360){
+        if (currentColor > 360) {
             currentColor -= 360;
         }
         return currentColor;
@@ -110,7 +110,7 @@ public class Colony {
         return currentId;
     }
 
-    public static List<Colony> getColonies(){
+    public static List<Colony> getColonies() {
         List<Colony> ret = new ArrayList<>();
         ret.addAll(colonyList.values());
         return ret;
@@ -129,8 +129,9 @@ public class Colony {
         }
 
         public static Colony findColonyByName(String name) {
+            if (colonyList == null) colonyList = new HashMap<>();
             Colony ret = colonyList.get(name);
-            if (ret == null){
+            if (ret == null) {
                 ret = buildFromColonyName(name);
             }
             return ret;
@@ -138,7 +139,7 @@ public class Colony {
 
         public static void buildFromArray(Colony[] cols) {
             HashMap<String, Colony> hashMap = Colony.getColonyList();
-            for(Colony colony : cols){
+            for (Colony colony : cols) {
                 hashMap.put(colony.name, colony);
             }
         }
@@ -158,19 +159,27 @@ public class Colony {
         public static Colony buildFromSnapshot(DataSnapshot colonySnapshot) {
             Colony ret;
             ret = colonyList.get(colonySnapshot.getKey());
-            if(ret == null) ret = new Colony();
+            if (ret == null) ret = new Colony();
             ret.name = colonySnapshot.getKey();
             String ref = REFERENCE_NAME + ret.name;
             ret.databaseReference = FirebaseDatabase.getInstance().getReference(ref);
-            String col = colonySnapshot.child("color").getValue().toString();
-            ret.color = Float.valueOf(col);
+            try {
+                String col = colonySnapshot.child("color").getValue().toString();
+                ret.color = Float.valueOf(col);
+            } catch (NullPointerException ex) {
+                ret.color = 0.0f;
+            }
             try {
                 ret.country = colonySnapshot.child("country").getValue().toString();
-            } catch (NullPointerException ex){
+            } catch (NullPointerException ex) {
                 ret.country = "NA";
                 ret.databaseReference.child("country").setValue(ret.country);
             }
+            try{
             ret.idColony = Integer.valueOf(colonySnapshot.child("idColony").getValue().toString());
+            } catch (NullPointerException ex){
+                ret.idColony = 1;
+            }
             colonyList.put(ret.name, ret);
             return ret;
         }
