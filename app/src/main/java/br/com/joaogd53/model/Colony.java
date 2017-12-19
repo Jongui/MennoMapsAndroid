@@ -8,6 +8,7 @@ import android.arch.persistence.room.PrimaryKey;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.maps.android.data.kml.KmlPlacemark;
@@ -151,13 +152,18 @@ public class Colony {
             ret.country = "RU";
             ret.name = colonyGroup;
             String ref = "dev/Colony/" + ret.name;
-            ret.databaseReference = FirebaseDatabase.getInstance().getReference(ref);
+            try {
+                ret.databaseReference = FirebaseDatabase.getInstance().getReference(ref);
+            } catch (DatabaseException ex){
+                ex.printStackTrace();
+            }
             colonyList.put(colonyGroup, ret);
             return ret;
         }
 
         public static Colony buildFromSnapshot(DataSnapshot colonySnapshot) {
             Colony ret;
+            if(colonyList == null) colonyList = new HashMap<>();
             ret = colonyList.get(colonySnapshot.getKey());
             if (ret == null) ret = new Colony();
             ret.name = colonySnapshot.getKey();

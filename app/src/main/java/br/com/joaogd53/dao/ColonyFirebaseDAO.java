@@ -30,6 +30,7 @@ public class ColonyFirebaseDAO extends AbstractFirebaseDAO implements ValueEvent
         for (DataSnapshot colonySnapshot : dataSnapshot.getChildren()) {
             Colony colony = Colony.ColonyBuilder.buildFromSnapshot(colonySnapshot);
         }
+        this.triggerFirebaseDAO();
     }
 
     @Override
