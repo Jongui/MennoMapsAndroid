@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
                 villageFirebaseDAO.addFirebaseDAO(new FirebaseDAO() {
                     @Override
                     public void atLoadFinished() {
-                        if(migration4To5.isUpdated()) MainActivity.this.updateSQLite();
+                        if(migration4To5.isUpdated()) new UpdateSQLiteAsyncTask(appDatabase, migration4To5).execute();
                         Fragment f = new MapsFragment();
                         FragmentTransaction ft = MainActivity.this.getFragmentManager().beginTransaction();
                         MainActivity.this.getFragmentManager().popBackStack("control", FragmentManager.POP_BACK_STACK_INCLUSIVE);
@@ -69,21 +69,34 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void updateSQLite(){
-        List<Village> villages = Village.getVillages();
-        Village[] villagesUpdate = new Village[villages.size()];
-        for(int i = 0; i < villages.size(); i++){
-            villagesUpdate[i] = villages.get(i);
+    private static class UpdateSQLiteAsyncTask extends AsyncTask<Void, Void, Void>{
+
+        private AppDatabase appDatabase;
+        private Migration4To5 migration4To5;
+
+        private UpdateSQLiteAsyncTask(AppDatabase appDatabase, Migration4To5 migration4To5){
+            this.appDatabase = appDatabase;
+            this.migration4To5 = migration4To5;
         }
-        VillageDAO villageDAO = appDatabase.villageDAO();
-        villageDAO.updateVillages(villagesUpdate);
-        List<Colony> colonies = Colony.getColonies();
-        Colony[] coloniesUpdate = new Colony[colonies.size()];
-        for(int i = 0; i < colonies.size(); i++){
-            coloniesUpdate[i] = colonies.get(i);
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            List<Village> villages = Village.getVillages();
+            Village[] villagesUpdate = new Village[villages.size()];
+            for(int i = 0; i < villages.size(); i++){
+                villagesUpdate[i] = villages.get(i);
+            }
+            VillageDAO villageDAO = this.appDatabase.villageDAO();
+            villageDAO.updateVillages(villagesUpdate);
+            List<Colony> colonies = Colony.getColonies();
+            Colony[] coloniesUpdate = new Colony[colonies.size()];
+            for(int i = 0; i < colonies.size(); i++){
+                coloniesUpdate[i] = colonies.get(i);
+            }
+            this.appDatabase.colonyDAO().updateColonies(coloniesUpdate);
+            this.migration4To5.setUpdated(false);
+            return null;
         }
-        appDatabase.colonyDAO().updateColonies(coloniesUpdate);
-        migration4To5.setUpdated(false);
     }
 
     private static class DataBaseAsyncTask extends AsyncTask<Void, Void, Void> {
