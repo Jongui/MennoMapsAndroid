@@ -26,6 +26,7 @@ public class Migration4To5 extends Migration {
     public void migrate(@NonNull SupportSQLiteDatabase database) {
         database.execSQL("ALTER TABLE 'Village' "
                 + " ADD COLUMN 'firebaseKey' INTEGER NOT NULL DEFAULT '0'");
+        this.updated = true;
     }
 
     public boolean isUpdated() {
