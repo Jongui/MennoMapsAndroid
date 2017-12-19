@@ -266,10 +266,11 @@ public class Village implements ClusterItem {
         public static Village buildFromSnapshot(DataSnapshot villageSnapshot) {
             Village ret;
             if (villages == null) villages = new SparseArray<>();
-            ret = villages.get(Integer.valueOf(villageSnapshot.child("Nr").getValue().toString()));
+            int id = getCurrentId();
+            ret = villages.get(id);
             if (ret == null) {
                 ret = new Village();
-                ret.idVillage = Integer.valueOf(villageSnapshot.child("Nr").getValue().toString());
+                ret.idVillage = id;
                 villages.put(ret.idVillage, ret);
             }
             ret.firebaseKey = Integer.valueOf(villageSnapshot.getKey());
