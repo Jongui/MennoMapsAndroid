@@ -56,7 +56,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        this.mClusterManager = new ClusterManager<>(this.getActivity(), mMap);
+        try {
+            this.mClusterManager = new ClusterManager<>(this.getActivity(), mMap);
+        } catch (NullPointerException ex){
+            ex.getStackTrace();
+            return;
+        }
         // Point the map's listeners at the listeners implemented by the cluster
         // manager.
         mMap.setOnCameraIdleListener(mClusterManager);

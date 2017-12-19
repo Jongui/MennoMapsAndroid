@@ -27,7 +27,6 @@ import br.com.joaogd53.utils.NetworkUtils;
 public class MainActivity extends AppCompatActivity {
 
     private int currentFragment = 1;
-    private Migration4To5 migration4To5;
     private AppDatabase appDatabase;
 
     // Declare a variable for the cluster manager.
@@ -37,10 +36,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        migration4To5 = new Migration4To5(4, 5);
         appDatabase = Room.databaseBuilder(this, AppDatabase.class, "mennomaps-database.db")
                 .addMigrations(new Migration1To2(1, 2), new Migration2To3(2, 3), new Migration3To4(3, 4),
-                        migration4To5).build();
+                        new Migration4To5(4, 5)).build();
         if (NetworkUtils.networkIsConnected(this)) {
             this.loadDataOnline();
         } else {
@@ -59,12 +57,7 @@ public class MainActivity extends AppCompatActivity {
                     public void atLoadFinished() {
                         ColonyDAO colonyDAO = appDatabase.colonyDAO();
                         VillageDAO villageDAO = appDatabase.villageDAO();
-                        new UpdateSQLiteAsyncTask(colonyDAO, villageDAO, migration4To5).execute();
-                        Fragment f = new MapsFragment();
-                        FragmentTransaction ft = MainActivity.this.getFragmentManager().beginTransaction();
-                        MainActivity.this.getFragmentManager().popBackStack("control", FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                        String tag = "MAPS_FRAGMENT";
-                        ft.replace(R.id.container, f, tag).addToBackStack("control").commit();
+                        new UpdateSQLiteAsyncTask(colonyDAO, villageDAO, MainActivity.this.getFragmentManager()).execute();
                     }
                 });
             }
@@ -75,12 +68,12 @@ public class MainActivity extends AppCompatActivity {
 
         private ColonyDAO mColonyDAO;
         private VillageDAO mVillageDAO;
-        private Migration4To5 migration4To5;
+        private FragmentManager mFragmentManager;
 
-        private UpdateSQLiteAsyncTask(ColonyDAO colonyDAO, VillageDAO villageDAO, Migration4To5 migration4To5){
+        private UpdateSQLiteAsyncTask(ColonyDAO colonyDAO, VillageDAO villageDAO, FragmentManager fragmentManager){
             this.mColonyDAO = colonyDAO;
             this.mVillageDAO = villageDAO;
-            this.migration4To5 = migration4To5;
+            this.mFragmentManager = fragmentManager;
         }
 
         @Override
@@ -97,7 +90,11 @@ public class MainActivity extends AppCompatActivity {
                 villagesUpdate[i] = villages.get(i);
             }
             mVillageDAO.updateVillages(villagesUpdate);
-            this.migration4To5.setUpdated(false);
+            Fragment f = new MapsFragment();
+            FragmentTransaction ft = mFragmentManager.beginTransaction();
+            mFragmentManager.popBackStack("control", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            String tag = "MAPS_FRAGMENT";
+            ft.replace(R.id.container, f, tag).addToBackStack("control").commit();
             return null;
         }
     }
