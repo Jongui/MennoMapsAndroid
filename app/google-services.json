@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "170427068843",
+    "firebase_url": "https://mennomaps-1511038410929.firebaseio.com",
+    "project_id": "mennomaps-1511038410929",
+    "storage_bucket": "mennomaps-1511038410929.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:170427068843:android:9a97c54271886d74",
+        "android_client_info": {
+          "package_name": "br.com.joaogd53.mennomaps"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "170427068843-0209u7oq2t8bed6eu12ckq234ruvm2cn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "br.com.joaogd53.mennomaps",
+            "certificate_hash": "80bb7938d23a14810e7904dad95877b713ed32ce"
+          }
+        },
+        {
+          "client_id": "170427068843-aehuppanpd3sdusaeh4jrjnaj9poprel.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOuL8Hl3ZPPnTCsEbFKAzyGRXlMR5c30Q"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "170427068843-v8tkc94j75cgp9dfgq9nrdclmrvvcnbr.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "br.com.joaogd53.MennoMaps"
+              }
+            },
+            {
+              "client_id": "170427068843-aehuppanpd3sdusaeh4jrjnaj9poprel.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
