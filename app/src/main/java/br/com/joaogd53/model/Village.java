@@ -276,6 +276,9 @@ public class Village implements ClusterItem {
             ret.firebaseKey = Integer.valueOf(villageSnapshot.getKey());
             ret.name = villageSnapshot.child("Name").getValue().toString();
             ret.colonyGroup = villageSnapshot.child("Kolonie").getValue().toString();
+            if(ret.colonyGroup.equals("")){
+                ret.colonyGroup = "No name";
+            }
             ret.country = villageSnapshot.child("Land").getValue().toString();
             Colony colony = Colony.ColonyBuilder.findColonyByName(ret.colonyGroup);
             if (colony != null) {

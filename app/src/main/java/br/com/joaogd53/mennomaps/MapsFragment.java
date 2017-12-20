@@ -56,7 +56,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        try {
+            try {
             this.mClusterManager = new ClusterManager<>(this.getActivity(), mMap);
         } catch (NullPointerException ex){
             ex.getStackTrace();

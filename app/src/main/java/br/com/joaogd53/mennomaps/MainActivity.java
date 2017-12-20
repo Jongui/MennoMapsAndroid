@@ -4,10 +4,12 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.arch.persistence.room.Room;
+import android.database.sqlite.SQLiteConstraintException;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import br.com.joaogd53.dao.ColonyDAO;
@@ -78,15 +80,16 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... voids) {
-            List<Colony> colonies = Colony.getColonies();
-            Colony[] coloniesUpdate = new Colony[colonies.size()];
-            for(int i = 0; i < colonies.size(); i++){
-                coloniesUpdate[i] = colonies.get(i);
-            }
-            mColonyDAO.updateColonies(coloniesUpdate);
+            this.updInsColonies();
             List<Village> villages = Village.getVillages();
             Village[] villagesUpdate = new Village[villages.size()];
             for(int i = 0; i < villages.size(); i++){
+                Village village = villages.get(i);
+                try{
+                    mVillageDAO.updateVillage(village);
+                } catch (SQLiteConstraintException ex){
+                    ex.printStackTrace();
+                }
                 villagesUpdate[i] = villages.get(i);
             }
             mVillageDAO.updateVillages(villagesUpdate);
@@ -96,6 +99,39 @@ public class MainActivity extends AppCompatActivity {
             String tag = "MAPS_FRAGMENT";
             ft.replace(R.id.container, f, tag).addToBackStack("control").commit();
             return null;
+        }
+
+        private void updInsColonies() {
+            List<Colony> colsMemory = Colony.getColonies();
+//            int lastId = mColonyDAO.lastIndex();
+            Colony[] colsSQLite = mColonyDAO.loadAllColonies();
+            List<Colony> coloniesUpdate = new ArrayList<>();
+            List<Colony> coloniesInsert = new ArrayList<>();
+            for(int i = 0; i < colsMemory.size(); i++){
+                Colony colonyMemory = colsMemory.get(i);
+                boolean updCol = false;
+                for(Colony colonySQLite : colsSQLite){
+                    if(colonyMemory.getIdColony() == colonySQLite.getIdColony()){
+                        updCol = true;
+                        break;
+                    }
+                }
+                if(updCol){
+                    coloniesUpdate.add(colonyMemory);
+                } else {
+                    coloniesInsert.add(colonyMemory);
+                }
+            }
+            Colony[] sqlite = new Colony[coloniesInsert.size()];
+            for(int i = 0; i < coloniesInsert.size(); i++){
+                sqlite[i] = coloniesInsert.get(i);
+            }
+            mColonyDAO.insertColonies(sqlite);
+            sqlite = new Colony[coloniesUpdate.size()];
+            for(int i = 0; i < coloniesUpdate.size(); i++){
+                sqlite[i] = coloniesUpdate.get(i);
+            }
+            mColonyDAO.updateColonies(sqlite);
         }
     }
 

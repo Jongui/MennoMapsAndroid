@@ -20,6 +20,8 @@ public interface VillageDAO {
     Village[] loadAllVillages();
     @Update
     void updateVillages(Village...villages);
+    @Update
+    void updateVillage(Village village);
     /*private static VillageDAO instance;
     private List<Village> villages;
 

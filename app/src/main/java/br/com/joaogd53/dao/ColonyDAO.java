@@ -20,4 +20,6 @@ public interface ColonyDAO {
     Colony[] loadAllColonies();
     @Update
     void updateColonies(Colony...colonies);
+//    @Query("SELECT seq FROM sqlite_sequence WHERE name='Colony'")
+//    int lastIndex();
 }
