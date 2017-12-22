@@ -62,7 +62,7 @@ public class Village implements ClusterItem {
     private DatabaseReference databaseReference;
 
     @Ignore
-    private final static String REFERENCE_NAME = "dev/Village/";
+    private final static String REFERENCE_NAME = "prd/Village/";
 
     private static int currentId = 0;
 

@@ -25,7 +25,7 @@ public class VillageFirebaseDAO extends AbstractFirebaseDAO implements ValueEven
     }
 
     private VillageFirebaseDAO() {
-        this.databaseReference = FirebaseDatabase.getInstance().getReference("dev/Village");
+        this.databaseReference = FirebaseDatabase.getInstance().getReference("prd/Village");
         this.databaseReference.addValueEventListener(this);
     }
 

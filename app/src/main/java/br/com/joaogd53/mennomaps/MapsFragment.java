@@ -1,11 +1,13 @@
 package br.com.joaogd53.mennomaps;
 
 import android.app.Fragment;
+import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.Gravity;
@@ -26,9 +28,19 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.ClusterManager;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import br.com.joaogd53.dao.ColonyDAO;
+import br.com.joaogd53.dao.Migration1To2;
+import br.com.joaogd53.dao.Migration2To3;
+import br.com.joaogd53.dao.Migration3To4;
+import br.com.joaogd53.dao.Migration4To5;
+import br.com.joaogd53.dao.VillageDAO;
+import br.com.joaogd53.model.AppDatabase;
+import br.com.joaogd53.model.Colony;
 import br.com.joaogd53.model.Village;
+import br.com.joaogd53.utils.NetworkUtils;
 
 /**
  * Map fragment
@@ -50,6 +62,14 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         mMapView.onCreate(savedInstanceState);
         mMapView.getMapAsync(this);
 
+        AppDatabase appDatabase = Room.databaseBuilder(this.getActivity(), AppDatabase.class, "mennomaps-database.db")
+                .addMigrations(new Migration1To2(1, 2), new Migration2To3(2, 3), new Migration3To4(3, 4),
+                        new Migration4To5(4, 5)).build();
+        ColonyDAO colonyDAO = appDatabase.colonyDAO();
+        VillageDAO villageDAO = appDatabase.villageDAO();
+        if (NetworkUtils.networkIsConnected(this.getActivity())) {
+            new UpdateSQLiteAsyncTask(colonyDAO, villageDAO).execute();
+        }
         return rootView;
     }
 
@@ -103,84 +123,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         UiSettings settings = mMap.getUiSettings();
         settings.setZoomControlsEnabled(true);
         this.addMarkersFromMemory();
-//        if (NetworkUtils.networkIsConnected(this.getActivity())) {
-//        } else {
-//            this.addOfflineMarkers();
-//        }
-//        this.addMarkersFromKml();
         mClusterManager.setRenderer(new VillageIconRendered(this.getActivity(), mMap, mClusterManager));
 
     }
-
-//    private void addOfflineMarkers() {
-//
-//        final String PREFS_NAME = "MennoMapsPrefsFile";
-//        final String PREF_VERSION_CODE_KEY = "version_code";
-//        final int DOESNT_EXIST = -1;
-//
-//        // Get current version code
-//        int currentVersionCode = BuildConfig.VERSION_CODE;
-//
-//        // Get saved version code
-//        SharedPreferences prefs = this.getActivity().getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-//        int savedVersionCode = prefs.getInt(PREF_VERSION_CODE_KEY, DOESNT_EXIST);
-//
-//        // Check for first run or upgrade
-//        if (currentVersionCode == savedVersionCode) {
-//            this.addMarkersFromMemory();
-//            return;
-//        } else if (savedVersionCode == DOESNT_EXIST) {
-//            this.addMarkersFromKml();
-//        } else if (currentVersionCode > savedVersionCode) {
-//            this.addMarkersFromKml();
-//        }
-//
-//        // Update the shared preferences with the current version code
-//        prefs.edit().putInt(PREF_VERSION_CODE_KEY, currentVersionCode).apply();
-//    }
-
-//    private void addMarkersFromKml() {
-//        KmlLayer kmlLayer;
-//        double lat = 0.0, lon = 0.0;
-//        int totalVillages = 0;
-//        try {
-//            kmlLayer = new KmlLayer(mMap, R.raw.file, this.getActivity());
-//            kmlLayer.addLayerToMap();
-//            //Retrieve the first container in the KML layer
-//            KmlContainer container = kmlLayer.getContainers().iterator().next();
-//            for (KmlContainer cont : container.getContainers()) {
-//                for (KmlPlacemark placemark : cont.getPlacemarks()) {
-//                    //Log.e("StyleId: ",placemark.getStyleId());
-//                    if (placemark.getGeometry() == null) {
-//                        Log.e("Vill. w.o. coordinate: ", placemark.getProperty("name"));
-//                        continue;
-//                    }
-//
-//                    if (placemark.getGeometry() instanceof KmlPoint) {
-//                        Village v = Village.VillageBuilder.addVillageFromPlacemarker(placemark);
-//                        LatLng tmp = v.getPosition();
-//                        lat += tmp.latitude;
-//                        lon += tmp.longitude;
-//                        LatLng l = v.getPosition();
-//                        mClusterManager.addItem(v);
-//                        totalVillages++;
-//                    }
-//                }
-//
-//            }
-//            if (totalVillages != 0) {
-//                lat /= totalVillages;
-//                lon /= totalVillages;
-//            }
-//
-//            mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lat, lon)));
-//        } catch (XmlPullParserException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        new DataBaseAsyncTask(this.getActivity()).execute();
-//    }
 
     private void addMarkersFromMemory() {
         Drawable drawable = getResources().getDrawable(R.drawable.background_circle_transparent);
@@ -233,54 +178,126 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         mMapView.onPause();
     }
 
-//    private class ColonyEventListener implements FirebaseDAO {
-//
-//        @Override
-//        public void atLoadFinished() {
-//
-//        }
-//    }
-//
-//    private class VillageEventListener implements  FirebaseDAO{
-//
-//        @Override
-//        public void atLoadFinished() {
-//            addMarkersFromMemory();
-//        }
-//    }
+    private static class UpdateSQLiteAsyncTask extends AsyncTask<Void, Void, Void> {
 
-//    private static class DataBaseAsyncTask extends AsyncTask<Void, Void, Void> {
-//
-//        private ColonyDAO mColonyDAO;
-//        private VillageDAO mVillageDAO;
-//        private AppDatabase mAppDatabase;
-//
-//        private DataBaseAsyncTask(Context context) {
-//            mAppDatabase = Room.databaseBuilder(context, AppDatabase.class, "mennomaps-database.db").build();
-//            mColonyDAO = mAppDatabase.colonyDAO();
-//            mVillageDAO = mAppDatabase.villageDAO();
-//        }
-//
-//        @Override
-//        protected Void doInBackground(Void... voids) {
-//            List<Village> villages = Village.getVillages();
-//            Village[] vils = new Village[villages.size()];
-//            int i = 0;
-//            for (Village village : villages) {
-//                vils[i] = village;
-//                i++;
-//            }
-//            i = 0;
-//            List<Colony> colonies = Colony.getColonies();
-//            Colony[] cols = new Colony[colonies.size()];
-//            for (Colony colony : colonies) {
-//                cols[i] = colony;
-//                i++;
-//            }
-//
-//            mColonyDAO.insertColonies(cols);
-//            mVillageDAO.insertVillages(vils);
-//            return null;
-//        }
-//    }
+        private ColonyDAO mColonyDAO;
+        private VillageDAO mVillageDAO;
+
+        private UpdateSQLiteAsyncTask(ColonyDAO colonyDAO, VillageDAO villageDAO){
+            this.mColonyDAO = colonyDAO;
+            this.mVillageDAO = villageDAO;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            this.updInsColonies();
+            this.updInsVillages();
+            this.deleteVillages();
+            this.deleteColonies();
+            return null;
+        }
+
+        private void deleteColonies() {
+            List<Colony> coloniesDelete = new ArrayList<>();
+            Colony[] colsSQLite = mColonyDAO.loadAllColonies();
+            List<Colony> colsMemory = Colony.getColonies();
+            for(Colony colonySQLite : colsSQLite){
+                boolean found = false;
+                for(Colony colonyMemory : colsMemory){
+                    if(colonyMemory.getIdColony() == colonySQLite.getIdColony()){
+                        found = true;
+                    }
+                }
+                if(!found) coloniesDelete.add(colonySQLite);
+            }
+            Colony[] sqlite = new Colony[coloniesDelete.size()];
+            for(int i = 0; i < coloniesDelete.size(); i++){
+                sqlite[i] = coloniesDelete.get(i);
+            }
+            mColonyDAO.deleteColonies(sqlite);
+        }
+
+        private void deleteVillages(){
+            List<Village> villagesDelete = new ArrayList<>();
+            Village[] villSQLite = mVillageDAO.loadAllVillages();
+            List<Village> colsMemory = Village.getVillages();
+            for(Village colonySQLite : villSQLite){
+                boolean found = false;
+                for(Village colonyMemory : colsMemory){
+                    if(colonyMemory.getIdColony() == colonySQLite.getIdColony()) found = true;
+                }
+                if(!found) villagesDelete.add(colonySQLite);
+            }
+            Village[] sqlite = new Village[villagesDelete.size()];
+            for(int i = 0; i < villagesDelete.size(); i++){
+                sqlite[i] = villagesDelete.get(i);
+            }
+            mVillageDAO.deleteVillages(sqlite);
+        }
+
+        private void updInsVillages() {
+            List<Village> villages = Village.getVillages();
+            Village[] villSQLite = mVillageDAO.loadAllVillages();
+            List<Village> villagesUpdate = new ArrayList<>();
+            List<Village> villagesInsert = new ArrayList<>();
+            for(int i = 0; i < villages.size(); i++){
+                Village village = villages.get(i);
+                boolean updVil = false;
+                for(Village villageSQLite : villSQLite){
+                    if(village.getIdVillage() == villageSQLite.getIdVillage()){
+                        updVil = true;
+                        break;
+                    }
+                }
+                if(updVil){
+                    villagesUpdate.add(village);
+                } else {
+                    villagesInsert.add(village);
+                }
+            }
+            Village[] sqlite = new Village[villagesInsert.size()];
+            for(int i = 0; i < villagesInsert.size(); i++){
+                sqlite[i] = villagesInsert.get(i);
+            }
+            mVillageDAO.insertVillages(sqlite);
+            sqlite = new Village[villagesUpdate.size()];
+            for(int i = 0; i < villagesUpdate.size(); i++){
+                sqlite[i] = villagesUpdate.get(i);
+            }
+            mVillageDAO.updateVillages(sqlite);
+        }
+
+        private void updInsColonies() {
+            List<Colony> colsMemory = Colony.getColonies();
+//            int lastId = mColonyDAO.lastIndex();
+            Colony[] colsSQLite = mColonyDAO.loadAllColonies();
+            List<Colony> coloniesUpdate = new ArrayList<>();
+            List<Colony> coloniesInsert = new ArrayList<>();
+            for(int i = 0; i < colsMemory.size(); i++){
+                Colony colonyMemory = colsMemory.get(i);
+                boolean updCol = false;
+                for(Colony colonySQLite : colsSQLite){
+                    if(colonyMemory.getIdColony() == colonySQLite.getIdColony()){
+                        updCol = true;
+                        break;
+                    }
+                }
+                if(updCol){
+                    coloniesUpdate.add(colonyMemory);
+                } else {
+                    coloniesInsert.add(colonyMemory);
+                }
+            }
+            Colony[] sqlite = new Colony[coloniesInsert.size()];
+            for(int i = 0; i < coloniesInsert.size(); i++){
+                sqlite[i] = coloniesInsert.get(i);
+            }
+            mColonyDAO.insertColonies(sqlite);
+            sqlite = new Colony[coloniesUpdate.size()];
+            for(int i = 0; i < coloniesUpdate.size(); i++){
+                sqlite[i] = coloniesUpdate.get(i);
+            }
+            mColonyDAO.updateColonies(sqlite);
+        }
+    }
 }

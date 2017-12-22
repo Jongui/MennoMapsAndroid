@@ -1,6 +1,7 @@
 package br.com.joaogd53.dao;
 
 import android.arch.persistence.room.Dao;
+import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
@@ -20,6 +21,8 @@ public interface ColonyDAO {
     Colony[] loadAllColonies();
     @Update
     void updateColonies(Colony...colonies);
+    @Delete
+    void deleteColonies(Colony...colonies);
 //    @Query("SELECT seq FROM sqlite_sequence WHERE name='Colony'")
 //    int lastIndex();
 }

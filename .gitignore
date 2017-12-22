@@ -9,4 +9,4 @@
 .externalNativeBuild
 /.idea/modules.xml
 /.idea/misc.xml
-google-services.json
+app/google-services.json
