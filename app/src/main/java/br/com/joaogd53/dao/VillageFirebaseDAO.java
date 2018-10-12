@@ -5,8 +5,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 import br.com.joaogd53.model.Village;
 
@@ -17,7 +16,7 @@ import br.com.joaogd53.model.Village;
 public class VillageFirebaseDAO extends AbstractFirebaseDAO implements ValueEventListener {
 
     private static VillageFirebaseDAO instance;
-
+    private HashMap<Integer, Village> villageHashMap;
 
     public static VillageFirebaseDAO getInstance() {
         if (instance == null) instance = new VillageFirebaseDAO();
@@ -25,16 +24,20 @@ public class VillageFirebaseDAO extends AbstractFirebaseDAO implements ValueEven
     }
 
     private VillageFirebaseDAO() {
-        this.databaseReference = FirebaseDatabase.getInstance().getReference("prd/Village");
+        this.databaseReference = FirebaseDatabase.getInstance().getReference("dev/Village");
         this.databaseReference.addValueEventListener(this);
+        this.villageHashMap = new HashMap<>();
+    }
+
+    public Village findByFirebaseKey(int firebaseKey){
+        return this.villageHashMap.get(firebaseKey);
     }
 
     @Override
     public void onDataChange(DataSnapshot dataSnapshot) {
-        List<Village> villages = new ArrayList<>();
         for (DataSnapshot colonySnapshot : dataSnapshot.getChildren()) {
             Village village = Village.VillageBuilder.buildFromSnapshot(colonySnapshot);
-            villages.add(village);
+            this.villageHashMap.put(village.getFirebaseKey(), village);
         }
         this.triggerFirebaseDAO();
     }

@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">MennoMaps</string>
     <string name="title_activity_maps">MennoMaps</string>
+    <string name="colony_group">Colony Group:</string>
+    <string name="district">District:</string>
+    <string name="description">Description:</string>
+    <string name="latitude">Latitude</string>
+    <string name="longitude">Longitude</string>
 </resources>

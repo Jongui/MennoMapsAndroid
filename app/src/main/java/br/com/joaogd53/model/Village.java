@@ -182,7 +182,7 @@ public class Village implements ClusterItem {
 
     @Override
     public String getTitle() {
-        return this.name;
+        return this.firebaseKey + "/" + this.name + "/" + this.idVillage;
     }
 
     @Override
@@ -195,10 +195,7 @@ public class Village implements ClusterItem {
         }
 
         String ret = "<b>Nr.:</b>" + idVillage +
-                "<br><b>Kolonie</b>: " + colonyGroup +
                 "<br><b>Country</b>: " + countryName +
-                "<br><b>Latitude</b>: " + latitude +
-                "<br><b>Longitude</b>: " + longitude +
                 "<br><b>Source</b>: " + source;
         Log.d(this.name, ret);
         return ret;
@@ -241,8 +238,7 @@ public class Village implements ClusterItem {
                 village.setLatitude(latLng.latitude);
                 village.longitude = latLng.longitude;
             }
-            village.setDescription(placemark.getProperty("description"));
-//        Uri uri = Uri.parse(placemark.getProperty("Link"));
+
             Colony colony = Colony.ColonyBuilder.findColonyByName(village.getColonyGroup());
             if (colony != null) {
                 village.setHueColor(colony.getColor());
@@ -250,7 +246,7 @@ public class Village implements ClusterItem {
             } else {
                 village.setHueColor(BitmapDescriptorFactory.HUE_RED);
             }
-//        village.setUri(uri);
+
             if (villages == null) villages = new SparseArray<>();
             villages.put(village.idVillage, village);
             return village;
@@ -292,7 +288,6 @@ public class Village implements ClusterItem {
             ret.source = villageSnapshot.child("Source").getValue().toString();
             String ref = REFERENCE_NAME + ret.firebaseKey;
             ret.databaseReference = FirebaseDatabase.getInstance().getReference(ref);
-            ret.description = ret.getSnippet();
             return ret;
         }
     }

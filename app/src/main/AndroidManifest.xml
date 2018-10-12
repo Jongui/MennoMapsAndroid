@@ -31,7 +31,6 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_maps"
-            android:screenOrientation="landscape"
             android:hardwareAccelerated="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

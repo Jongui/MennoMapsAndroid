@@ -25,4 +25,6 @@ public interface VillageDAO {
     void updateVillage(Village village);
     @Delete
     void deleteVillages(Village...villages);
+    @Query("SELECT * FROM Village WHERE idVillage = :id LIMIT 1")
+    Village findById(int id);
 }

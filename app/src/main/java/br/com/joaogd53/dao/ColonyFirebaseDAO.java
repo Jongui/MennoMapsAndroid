@@ -16,7 +16,7 @@ public class ColonyFirebaseDAO extends AbstractFirebaseDAO implements ValueEvent
     private static ColonyFirebaseDAO instance;
 
     private ColonyFirebaseDAO() {
-        this.databaseReference = FirebaseDatabase.getInstance().getReference("prd/Colony");
+        this.databaseReference = FirebaseDatabase.getInstance().getReference("dev/Colony");
         this.databaseReference.addValueEventListener(this);
     }
 

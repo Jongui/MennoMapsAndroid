@@ -46,11 +46,13 @@ import br.com.joaogd53.utils.NetworkUtils;
  * Map fragment
  */
 
-public class MapsFragment extends Fragment implements OnMapReadyCallback {
+public class MapsFragment extends Fragment implements OnMapReadyCallback,
+        GoogleMap.OnInfoWindowClickListener {
 
     private GoogleMap mMap;
     private ClusterManager<Village> mClusterManager;
     private MapView mMapView;
+    private int mSelectedVillage;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -70,6 +72,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         if (NetworkUtils.networkIsConnected(this.getActivity())) {
             new UpdateSQLiteAsyncTask(colonyDAO, villageDAO).execute();
         }
+        this.mSelectedVillage = -1;
         return rootView;
     }
 
@@ -102,8 +105,18 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 title.setTextColor(Color.BLACK);
                 title.setGravity(Gravity.CENTER);
                 title.setTypeface(null, Typeface.BOLD);
-                title.setText(marker.getTitle());
-
+                String titleText = marker.getTitle();
+                try {
+                    String[] titleArray = titleText.split("/");
+                    title.setText(titleArray[1]);
+                    if (NetworkUtils.networkIsConnected(MapsFragment.this.getActivity())){
+                        mSelectedVillage = Integer.parseInt(titleArray[0]);
+                    } else {
+                        mSelectedVillage = Integer.parseInt(titleArray[2]);
+                    }
+                } catch (ArrayIndexOutOfBoundsException ex){
+                    title.setText(titleText);
+                }
                 TextView snippet = new TextView(context);
                 String snippetString = marker.getSnippet();
                 try {
@@ -111,7 +124,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 } catch (NullPointerException ex) {
                     snippet.setText("");
                 }
-
                 info.addView(title);
                 info.addView(snippet);
 
@@ -124,6 +136,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         settings.setZoomControlsEnabled(true);
         this.addMarkersFromMemory();
         mClusterManager.setRenderer(new VillageIconRendered(this.getActivity(), mMap, mClusterManager));
+        mMap.setOnInfoWindowClickListener(this);
 
     }
 
@@ -176,6 +189,15 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     public void onPause() {
         super.onPause();
         mMapView.onPause();
+    }
+
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        if(this.mSelectedVillage == -1)
+            return;
+        Bundle bundle = new Bundle();
+        bundle.putInt("idVillage", this.mSelectedVillage);
+        FragmentManagement.getInstance().callFragment(FragmentManagement.VILLAGE_FRAGMENT, bundle);
     }
 
     private static class UpdateSQLiteAsyncTask extends AsyncTask<Void, Void, Void> {

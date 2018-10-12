@@ -1,12 +1,11 @@
 package br.com.joaogd53.mennomaps;
 
-import android.app.Fragment;
 import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.arch.persistence.room.Room;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -43,13 +42,15 @@ public class MainActivity extends AppCompatActivity {
                         new Migration4To5(4, 5)).build();
         progressBar = findViewById(R.id.progressBar);
         textView = findViewById(R.id.textView);
-        //this.processData();
+        FragmentManagement.getInstance().setActivity(this);
     }
 
     private void processData(){
         if (NetworkUtils.networkIsConnected(this)) {
             this.loadDataOnline();
         } else {
+            progressBar.setVisibility(View.INVISIBLE);
+            textView.setVisibility(View.INVISIBLE);
             new DataBaseAsyncTask(this.getFragmentManager(), appDatabase).execute();
         }
     }
@@ -67,21 +68,13 @@ public class MainActivity extends AppCompatActivity {
                         textView.setText("Updating info");
                         ColonyDAO colonyDAO = appDatabase.colonyDAO();
                         VillageDAO villageDAO = appDatabase.villageDAO();
-                        Fragment f = new MapsFragment();
-                        FragmentManager fm = MainActivity.this.getFragmentManager();
-                        FragmentTransaction ft = fm.beginTransaction();
-                        fm.popBackStack("control", FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                        String tag = "MAPS_FRAGMENT";
-                        ft.replace(R.id.container, f, tag).addToBackStack("control").commit();
+                        progressBar.setVisibility(View.INVISIBLE);
+                        textView.setVisibility(View.INVISIBLE);
+                        FragmentManagement.getInstance().callFragment(FragmentManagement.MAPS_FRAGMENT, null);
                     }
                 });
             }
         });
-    }
-
-    @Override
-    public void onBackPressed() {
-        finish();
     }
 
     @Override
@@ -110,11 +103,7 @@ public class MainActivity extends AppCompatActivity {
             Village[] vils = mVillageDAO.loadAllVillages();
             Colony.ColonyBuilder.buildFromArray(cols);
             Village.VillageBuilder.buildFromArray(vils);
-            Fragment f = new MapsFragment();
-            FragmentTransaction ft = this.mFragmentManager.beginTransaction();
-            this.mFragmentManager.popBackStack("control", FragmentManager.POP_BACK_STACK_INCLUSIVE);
-            String tag = "MAPS_FRAGMENT";
-            ft.replace(R.id.container, f, tag).addToBackStack("control").commit();
+            FragmentManagement.getInstance().callFragment(FragmentManagement.MAPS_FRAGMENT, null);
             return null;
         }
     }
