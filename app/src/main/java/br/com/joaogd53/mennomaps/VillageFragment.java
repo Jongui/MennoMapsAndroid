@@ -1,9 +1,10 @@
 package br.com.joaogd53.mennomaps;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,14 +27,14 @@ public class VillageFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View returnView = inflater.inflate(R.layout.fragment_village,
                 container, false);
 
         Bundle bundle = this.getArguments();
         int idVillage = bundle.getInt("idVillage");
-        if (NetworkUtils.networkIsConnected(this.getActivity())) {
+        if (this.getActivity() != null && NetworkUtils.networkIsConnected(this.getActivity())) {
             this.mVillage = VillageFirebaseDAO.getInstance().findByFirebaseKey(idVillage);
         } else {
             this.mVillage = Village.getVillageAtIndex(idVillage);

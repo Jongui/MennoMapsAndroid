@@ -1,6 +1,5 @@
 package br.com.joaogd53.mennomaps;
 
-import android.app.Fragment;
 import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -9,6 +8,8 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.text.Html;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -55,7 +56,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     private int mSelectedVillage;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_maps,
                 container, false);
@@ -64,13 +65,15 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
         mMapView.onCreate(savedInstanceState);
         mMapView.getMapAsync(this);
 
-        AppDatabase appDatabase = Room.databaseBuilder(this.getActivity(), AppDatabase.class, "mennomaps-database.db")
-                .addMigrations(new Migration1To2(1, 2), new Migration2To3(2, 3), new Migration3To4(3, 4),
-                        new Migration4To5(4, 5)).build();
-        ColonyDAO colonyDAO = appDatabase.colonyDAO();
-        VillageDAO villageDAO = appDatabase.villageDAO();
-        if (NetworkUtils.networkIsConnected(this.getActivity())) {
-            new UpdateSQLiteAsyncTask(colonyDAO, villageDAO).execute();
+        if(this.getActivity() != null) {
+            AppDatabase appDatabase = Room.databaseBuilder(this.getActivity(), AppDatabase.class, "mennomaps-database.db")
+                    .addMigrations(new Migration1To2(1, 2), new Migration2To3(2, 3), new Migration3To4(3, 4),
+                            new Migration4To5(4, 5)).build();
+            ColonyDAO colonyDAO = appDatabase.colonyDAO();
+            VillageDAO villageDAO = appDatabase.villageDAO();
+            if (NetworkUtils.networkIsConnected(this.getActivity())) {
+                new UpdateSQLiteAsyncTask(colonyDAO, villageDAO).execute();
+            }
         }
         this.mSelectedVillage = -1;
         return rootView;
@@ -79,12 +82,10 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        try {
+        if(this.getActivity() != null)
             this.mClusterManager = new ClusterManager<>(this.getActivity(), mMap);
-        } catch (NullPointerException ex){
-            ex.getStackTrace();
+        else
             return;
-        }
         // Point the map's listeners at the listeners implemented by the cluster
         // manager.
         mMap.setOnCameraIdleListener(mClusterManager);
@@ -109,7 +110,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
                 try {
                     String[] titleArray = titleText.split("/");
                     title.setText(titleArray[1]);
-                    if (NetworkUtils.networkIsConnected(MapsFragment.this.getActivity())){
+                    if (MapsFragment.this.getActivity() != null && NetworkUtils.networkIsConnected(MapsFragment.this.getActivity())){
                         mSelectedVillage = Integer.parseInt(titleArray[0]);
                     } else {
                         mSelectedVillage = Integer.parseInt(titleArray[2]);
@@ -120,7 +121,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
                 TextView snippet = new TextView(context);
                 String snippetString = marker.getSnippet();
                 try {
-                    snippet.setText(Html.fromHtml(snippetString));
+                    snippet.setText(Html.fromHtml(this.formatSnippet(snippetString)));
+                } catch (ArrayIndexOutOfBoundsException ex){
+                    snippet.setText(snippetString);
                 } catch (NullPointerException ex) {
                     snippet.setText("");
                 }
@@ -128,6 +131,15 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
                 info.addView(snippet);
 
                 return info;
+            }
+
+            private String formatSnippet(String snippetString) throws ArrayIndexOutOfBoundsException{
+                String ret;
+                String[] snippetArray = snippetString.split("/");
+                ret = "<b>" + getResources().getString(R.string.nr) + "</b>" + snippetArray[0] +
+                        "<br><b>" + getResources().getString(R.string.country) +"</b>: " + snippetArray[1] +
+                        "<br><b>" + getResources().getString(R.string.source) + "</b>: " + snippetArray[2];
+                return ret;
             }
         });
         mClusterManager.setAnimation(true);
@@ -197,7 +209,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
             return;
         Bundle bundle = new Bundle();
         bundle.putInt("idVillage", this.mSelectedVillage);
-        FragmentManagement.getInstance().callFragment(FragmentManagement.VILLAGE_FRAGMENT, bundle);
+        FragmentManagement.getInstance().callFragment(FragmentManagement.VILLAGE_FRAGMENT, bundle,
+                this.getFragmentManager());
     }
 
     private static class UpdateSQLiteAsyncTask extends AsyncTask<Void, Void, Void> {

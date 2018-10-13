@@ -112,9 +112,9 @@ public class Colony {
     }
 
     public static List<Colony> getColonies(){
-        List<Colony> ret = new ArrayList<>();
-        ret.addAll(colonyList.values());
-        return ret;
+        //List<Colony> ret =
+        //ret.addAll(colonyList.values());
+        return new ArrayList<>(colonyList.values());
     }
 
     public static class ColonyBuilder {
@@ -163,7 +163,6 @@ public class Colony {
             ret.databaseReference = FirebaseDatabase.getInstance().getReference(ref);
             String col = colonySnapshot.child("color").getValue().toString();
             ret.color = Float.valueOf(col);
-            //colonyList.put(ret.name, ret);
             return ret;
         }
     }

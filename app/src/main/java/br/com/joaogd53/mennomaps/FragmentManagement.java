@@ -1,10 +1,9 @@
 package br.com.joaogd53.mennomaps;
 
-import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 
 public class FragmentManagement {
 
@@ -12,7 +11,6 @@ public class FragmentManagement {
     public static final int VILLAGE_FRAGMENT = 1;
 
     private static FragmentManagement instance;
-    private Activity activity;
 
     public static FragmentManagement getInstance(){
         if(instance == null)
@@ -24,13 +22,8 @@ public class FragmentManagement {
 
     }
 
-    public void setActivity(Activity activity){
-        this.activity = activity;
-    }
-
-    public void callFragment(int fragment, Bundle bundle){
+    public void callFragment(int fragment, Bundle bundle, FragmentManager fm){
         Fragment f = new Fragment();
-        FragmentManager fm = activity.getFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
         String tag = "";
         switch (fragment){

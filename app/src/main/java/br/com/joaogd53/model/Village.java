@@ -194,9 +194,9 @@ public class Village implements ClusterItem {
             countryName = new Locale("", "RU").getDisplayName();
         }
 
-        String ret = "<b>Nr.:</b>" + idVillage +
-                "<br><b>Country</b>: " + countryName +
-                "<br><b>Source</b>: " + source;
+        String ret = idVillage +
+                "/" + countryName +
+                "/" + source;
         Log.d(this.name, ret);
         return ret;
     }

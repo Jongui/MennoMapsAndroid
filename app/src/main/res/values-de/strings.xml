@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MennoMaps</string>
+    <string name="colony_group">Kolonie:</string>
+    <string name="district">Distrikt:</string>
+    <string name="description">Beschreibung</string>
+    <string name="latitude">Latitude</string>
+    <string name="longitude">Longitude</string>
+    <string name="loading_colonies">Kolonien laden</string>
+    <string name="loading_villages">Dörefer laden</string>
+    <string name="nr">Nr.:</string>
+    <string name="country">Land</string>
+    <string name="source">Quelle</string>
+    <string name="updating_info">Info aktualisieren</string>
+</resources>

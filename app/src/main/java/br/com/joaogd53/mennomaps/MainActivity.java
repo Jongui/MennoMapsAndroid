@@ -1,9 +1,9 @@
 package br.com.joaogd53.mennomaps;
 
-import android.app.FragmentManager;
 import android.arch.persistence.room.Room;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -42,7 +42,6 @@ public class MainActivity extends AppCompatActivity {
                         new Migration4To5(4, 5)).build();
         progressBar = findViewById(R.id.progressBar);
         textView = findViewById(R.id.textView);
-        FragmentManagement.getInstance().setActivity(this);
     }
 
     private void processData(){
@@ -51,26 +50,26 @@ public class MainActivity extends AppCompatActivity {
         } else {
             progressBar.setVisibility(View.INVISIBLE);
             textView.setVisibility(View.INVISIBLE);
-            new DataBaseAsyncTask(this.getFragmentManager(), appDatabase).execute();
+            new DataBaseAsyncTask(this.getSupportFragmentManager(), appDatabase).execute();
         }
     }
 
     private void loadDataOnline() {
-        textView.setText("Loading colonies");
+        textView.setText(getResources().getString(R.string.loading_colonies));
         ColonyFirebaseDAO.getInstance().addFirebaseDAO(new FirebaseDAO() {
             @Override
             public void atLoadFinished() {
                 VillageFirebaseDAO villageFirebaseDAO = VillageFirebaseDAO.getInstance();
-                textView.setText("Loading villages");
+                textView.setText(getResources().getString(R.string.loading_villages));
                 villageFirebaseDAO.addFirebaseDAO(new FirebaseDAO() {
                     @Override
                     public void atLoadFinished() {
-                        textView.setText("Updating info");
+                        textView.setText(getResources().getString(R.string.updating_info));
                         ColonyDAO colonyDAO = appDatabase.colonyDAO();
                         VillageDAO villageDAO = appDatabase.villageDAO();
                         progressBar.setVisibility(View.INVISIBLE);
                         textView.setVisibility(View.INVISIBLE);
-                        FragmentManagement.getInstance().callFragment(FragmentManagement.MAPS_FRAGMENT, null);
+                        FragmentManagement.getInstance().callFragment(FragmentManagement.MAPS_FRAGMENT, null, MainActivity.this.getSupportFragmentManager());
                     }
                 });
             }
@@ -103,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
             Village[] vils = mVillageDAO.loadAllVillages();
             Colony.ColonyBuilder.buildFromArray(cols);
             Village.VillageBuilder.buildFromArray(vils);
-            FragmentManagement.getInstance().callFragment(FragmentManagement.MAPS_FRAGMENT, null);
+            FragmentManagement.getInstance().callFragment(FragmentManagement.MAPS_FRAGMENT, null, mFragmentManager);
             return null;
         }
     }
