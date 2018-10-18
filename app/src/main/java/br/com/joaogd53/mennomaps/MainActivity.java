@@ -23,7 +23,7 @@ import br.com.joaogd53.model.Colony;
 import br.com.joaogd53.model.Village;
 import br.com.joaogd53.utils.NetworkUtils;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements FirebaseDAO{
 
     private int currentFragment = 1;
     private AppDatabase appDatabase;
@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
                         new Migration4To5(4, 5)).build();
         progressBar = findViewById(R.id.progressBar);
         textView = findViewById(R.id.textView);
+        this.processData();
     }
 
     private void processData(){
@@ -55,10 +56,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadDataOnline() {
-        textView.setText(getResources().getString(R.string.loading_colonies));
+
         ColonyFirebaseDAO.getInstance().addFirebaseDAO(new FirebaseDAO() {
             @Override
             public void atLoadFinished() {
+                textView.setText(getResources().getString(R.string.loading_colonies));
                 VillageFirebaseDAO villageFirebaseDAO = VillageFirebaseDAO.getInstance();
                 textView.setText(getResources().getString(R.string.loading_villages));
                 villageFirebaseDAO.addFirebaseDAO(new FirebaseDAO() {
@@ -77,9 +79,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
-        this.processData();
+    }
+
+    @Override
+    public void atLoadFinished() {
+
     }
 
     private static class DataBaseAsyncTask extends AsyncTask<Void, Void, Void> {
