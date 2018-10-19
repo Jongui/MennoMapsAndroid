@@ -24,6 +24,7 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -49,6 +50,8 @@ import br.com.joaogd53.utils.NetworkUtils;
 
 public class MapsFragment extends Fragment implements OnMapReadyCallback,
         GoogleMap.OnInfoWindowClickListener {
+
+    private static CameraPosition cameraPosition;
 
     private GoogleMap mMap;
     private ClusterManager<Village> mClusterManager;
@@ -149,7 +152,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
         this.addMarkersFromMemory();
         mClusterManager.setRenderer(new VillageIconRendered(this.getActivity(), mMap, mClusterManager));
         mMap.setOnInfoWindowClickListener(this);
-
     }
 
     private void addMarkersFromMemory() {
@@ -176,7 +178,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
             lon /= size;
         }
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lat, lon)));
+        if(cameraPosition == null){
+            cameraPosition = CameraPosition.fromLatLngZoom(new LatLng(lat, lon), mMap.getCameraPosition().zoom);
+        }
+
+        mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 
     @Override
@@ -194,6 +200,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     @Override
     public void onStop() {
         super.onStop();
+        cameraPosition = mMap.getCameraPosition();
         mMapView.onStop();
     }
 
@@ -207,6 +214,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     public void onInfoWindowClick(Marker marker) {
         if(this.mSelectedVillage == -1)
             return;
+        cameraPosition = this.mMap.getCameraPosition();
         Bundle bundle = new Bundle();
         bundle.putInt("idVillage", this.mSelectedVillage);
         FragmentManagement.getInstance().callFragment(FragmentManagement.VILLAGE_FRAGMENT, bundle,

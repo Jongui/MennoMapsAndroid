@@ -14,7 +14,8 @@ public class AbstractFirebaseDAO {
     protected List<FirebaseDAO> firebaseDAOList = new ArrayList<>();
 
     public void addFirebaseDAO(FirebaseDAO firebaseDAO){
-        firebaseDAOList.add(firebaseDAO);
+        if(firebaseDAOList.size() == 0)
+            firebaseDAOList.add(firebaseDAO);
     }
 
     protected void triggerFirebaseDAO(){

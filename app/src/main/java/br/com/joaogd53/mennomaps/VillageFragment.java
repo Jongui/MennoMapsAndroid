@@ -16,6 +16,7 @@ import java.util.Locale;
 
 import br.com.joaogd53.dao.VillageFirebaseDAO;
 import br.com.joaogd53.model.Village;
+import br.com.joaogd53.utils.Formaters;
 import br.com.joaogd53.utils.NetworkUtils;
 
 public class VillageFragment extends Fragment {
@@ -63,10 +64,10 @@ public class VillageFragment extends Fragment {
         txtColonyGroup.setText(this.mVillage.getColonyGroup());
 
         TextView txtLatitude = returnView.findViewById(R.id.txtLatitude);
-        txtLatitude.setText(String.valueOf(this.mVillage.getLatitude()));
+        txtLatitude.setText(Formaters.formatDouble(this.mVillage.getLatitude()));
 
         TextView txtLongitude = returnView.findViewById(R.id.txtLongitude);
-        txtLongitude.setText(String.valueOf(this.mVillage.getLongitude()));
+        txtLongitude.setText(Formaters.formatDouble(this.mVillage.getLongitude()));
 
         TextView txtDescription = returnView.findViewById(R.id.txtDescription);
         txtDescription.setText(this.mVillage.getDescription());
