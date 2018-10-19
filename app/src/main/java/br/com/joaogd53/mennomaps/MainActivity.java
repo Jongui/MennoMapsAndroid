@@ -23,7 +23,7 @@ import br.com.joaogd53.model.Colony;
 import br.com.joaogd53.model.Village;
 import br.com.joaogd53.utils.NetworkUtils;
 
-public class MainActivity extends AppCompatActivity implements FirebaseDAO{
+public class MainActivity extends AppCompatActivity {
 
     private int currentFragment = 1;
     private AppDatabase appDatabase;
@@ -87,12 +87,7 @@ public class MainActivity extends AppCompatActivity implements FirebaseDAO{
     protected void onStart() {
         super.onStart();
     }
-
-    @Override
-    public void atLoadFinished() {
-
-    }
-
+    
     private static class DataBaseAsyncTask extends AsyncTask<Void, Void, Void> {
 
         private FragmentManager mFragmentManager;
