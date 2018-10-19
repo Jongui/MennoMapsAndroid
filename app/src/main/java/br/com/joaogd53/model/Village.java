@@ -197,7 +197,7 @@ public class Village implements ClusterItem {
         String ret = idVillage +
                 "/" + countryName +
                 "/" + source;
-        Log.d(this.name, ret);
+        Log.d("FirebaseKey:" , Integer.toString(this.firebaseKey));
         return ret;
     }
 
@@ -270,6 +270,9 @@ public class Village implements ClusterItem {
                 villages.put(ret.idVillage, ret);
             }
             ret.firebaseKey = Integer.valueOf(villageSnapshot.getKey());
+            if(ret.firebaseKey == 210){
+                Log.e("Erro:", "");
+            }
             ret.name = villageSnapshot.child("Name").getValue().toString();
             ret.colonyGroup = villageSnapshot.child("Kolonie").getValue().toString();
             if(ret.colonyGroup.equals("")){
